@@ -211,6 +211,11 @@ const DOM = {
             ".global-status-text p"
         ),
 
+    lastUpdated:
+        document.querySelector(
+            "#last-updated"
+        ),
+
     serviceElements:
         document.querySelectorAll(
             ".service"
@@ -617,6 +622,38 @@ function updateGlobalText(
 
 }
 
+// ==========================================
+// UPDATE LAST UPDATED
+// ==========================================
+
+function updateLastUpdated() {
+
+    if (!DOM.lastUpdated) {
+
+        return;
+
+    }
+
+
+    const now = new Date();
+
+
+    const time =
+        now.toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            }
+        );
+
+
+    DOM.lastUpdated.textContent =
+        `Today at ${time}`;
+
+}
+
 
 // ==========================================
 // REFRESH STATUS
@@ -629,29 +666,11 @@ function refreshStatus() {
     );
 
 
-    /*
-        FUTURE API CONNECTION
-
-        Later this function will request:
-
-        /api/status
-
-        The API will return something similar to:
-
-        {
-            services: [],
-            experiences: [],
-            incidents: []
-        }
-
-        For now, the status information
-        is stored locally.
-    */
-
-
     renderSystems();
 
     updateGlobalStatus();
+
+    updateLastUpdated();
 
 
     console.log(
@@ -685,6 +704,8 @@ function initializeStatusPage() {
     renderSystems();
 
     updateGlobalStatus();
+
+    updateLastUpdated();
 
 
     console.log(
