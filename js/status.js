@@ -107,7 +107,7 @@ const SERVICES = [
             "Backend and API services",
 
         status:
-            "operational"
+            "degraded"
 
     },
 
