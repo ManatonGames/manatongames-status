@@ -17,6 +17,12 @@ const STATUS_CONFIG = {
 
 };
 
+// ==========================================
+// LAST UPDATE TIME
+// ==========================================
+
+let lastUpdateTime = new Date();
+
 
 // ==========================================
 // STATUS DEFINITIONS
@@ -637,26 +643,53 @@ function updateLastUpdated() {
 
     const now = new Date();
 
-
-    const time =
-        now.toLocaleTimeString(
-            [],
-            {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit"
-            }
+    const difference =
+        Math.floor(
+            (now - lastUpdateTime) / 1000
         );
 
 
+    // --------------------------------------
+    // LESS THAN ONE MINUTE
+    // --------------------------------------
+
+    if (difference < 60) {
+
+        DOM.lastUpdated.textContent =
+            "Just now";
+
+        return;
+
+    }
+
+
+    // --------------------------------------
+    // MINUTES
+    // --------------------------------------
+
+    const minutes =
+        Math.floor(
+            difference / 60
+        );
+
+
+    if (minutes === 1) {
+
+        DOM.lastUpdated.textContent =
+            "1 minute ago";
+
+        return;
+
+    }
+
+
     DOM.lastUpdated.textContent =
-        `Today at ${time}`;
+        `${minutes} minutes ago`;
 
 }
 
-
 // ==========================================
-// REFRESH STATUS
+// REFRESH STATUS    
 // ==========================================
 
 function refreshStatus() {
@@ -669,6 +702,13 @@ function refreshStatus() {
     renderSystems();
 
     updateGlobalStatus();
+
+
+    // Register update time
+
+    lastUpdateTime =
+        new Date();
+
 
     updateLastUpdated();
 
@@ -689,6 +729,15 @@ setInterval(
     STATUS_CONFIG.refreshInterval
 );
 
+// ==========================================
+// UPDATE RELATIVE TIME
+// ==========================================
+
+setInterval(
+    updateLastUpdated,
+    1000
+);
+
 
 // ==========================================
 // INITIALIZE
@@ -699,6 +748,10 @@ function initializeStatusPage() {
     console.log(
         "[MG STATUS] Initializing..."
     );
+
+
+    lastUpdateTime =
+        new Date();
 
 
     renderSystems();
