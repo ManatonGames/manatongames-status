@@ -1,1 +1,747 @@
+/* ==========================================
+   MANATON GAMES STATUS
+   GLOBAL STYLES
+   ========================================== */
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   ROOT
+   ========================================== */
+
+:root {
+
+    --background: #0f172a;
+    --background-secondary: #111c33;
+
+    --card: #162033;
+    --card-hover: #1b2940;
+
+    --border: #26344d;
+
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --green: #22c55e;
+    --green-dark: #16a34a;
+
+    --yellow: #eab308;
+    --orange: #f97316;
+    --red: #ef4444;
+    --blue: #3b82f6;
+
+    --radius: 12px;
+
+}
+
+
+/* ==========================================
+   BODY
+   ========================================== */
+
+body {
+
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #172554 0%,
+            var(--background) 45%
+        );
+
+    color: var(--text-primary);
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+    line-height: 1.5;
+
+}
+
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.header {
+
+    width: 100%;
+
+    border-bottom: 1px solid var(--border);
+
+    background: rgba(15, 23, 42, 0.85);
+
+    backdrop-filter: blur(12px);
+
+}
+
+
+.header-container {
+
+    width: 100%;
+
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    padding: 22px 24px;
+
+}
+
+
+/* ==========================================
+   BRAND
+   ========================================== */
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+}
+
+
+.brand-logo {
+
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #2563eb;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.5px;
+
+    box-shadow:
+        0 6px 18px rgba(37, 99, 235, 0.3);
+
+}
+
+
+.brand-text {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.brand-name {
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.5px;
+
+}
+
+
+.brand-subtitle {
+
+    margin-top: 1px;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+}
+
+
+/* ==========================================
+   MAIN
+   ========================================== */
+
+.main-container {
+
+    width: 100%;
+
+    max-width: 900px;
+
+    margin: 0 auto;
+
+    padding: 55px 24px 70px;
+
+}
+
+
+/* ==========================================
+   GLOBAL STATUS
+   ========================================== */
+
+.global-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 40px;
+
+    padding: 28px;
+
+    background: rgba(34, 197, 94, 0.07);
+
+    border: 1px solid rgba(34, 197, 94, 0.22);
+
+    border-radius: var(--radius);
+
+}
+
+
+.status-indicator {
+
+    flex-shrink: 0;
+
+    width: 17px;
+    height: 17px;
+
+    border-radius: 50%;
+
+}
+
+
+.status-indicator.operational {
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 0 5px rgba(34, 197, 94, 0.12),
+        0 0 20px rgba(34, 197, 94, 0.5);
+
+}
+
+
+.global-status-text h1 {
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+    letter-spacing: -0.4px;
+
+}
+
+
+.global-status-text p {
+
+    margin-top: 4px;
+
+    color: var(--text-secondary);
+
+    font-size: 14px;
+
+}
+
+
+/* ==========================================
+   SECTION
+   ========================================== */
+
+.status-section {
+
+    margin-bottom: 30px;
+
+}
+
+
+.section-header {
+
+    margin-bottom: 12px;
+
+}
+
+
+.section-header h2 {
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.8px;
+
+}
+
+
+/* ==========================================
+   SERVICE
+   ========================================== */
+
+.service {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 20px 22px;
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-bottom: none;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+
+}
+
+
+.service:first-of-type {
+
+    border-radius:
+        var(--radius)
+        var(--radius)
+        0
+        0;
+
+}
+
+
+.service:last-child {
+
+    border-bottom: 1px solid var(--border);
+
+    border-radius:
+        0
+        0
+        var(--radius)
+        var(--radius);
+
+}
+
+
+.service:hover {
+
+    background: var(--card-hover);
+
+}
+
+
+.service-info {
+
+    min-width: 0;
+
+}
+
+
+.service-name {
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+}
+
+
+.service-description {
+
+    margin-top: 3px;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+}
+
+
+.service-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    flex-shrink: 0;
+
+    color: var(--green);
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+}
+
+
+.status-dot {
+
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+}
+
+
+.status-dot.operational {
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 10px rgba(34, 197, 94, 0.45);
+
+}
+
+
+/* ==========================================
+   UPTIME
+   ========================================== */
+
+.uptime-section {
+
+    margin-bottom: 30px;
+
+    padding: 24px;
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+}
+
+
+.uptime-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+}
+
+
+.uptime-header h2 {
+
+    font-size: 16px;
+
+}
+
+
+.uptime-header span {
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+}
+
+
+.uptime-value {
+
+    margin-top: 16px;
+
+    font-size: 32px;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+
+}
+
+
+.uptime-bar {
+
+    width: 100%;
+
+    height: 8px;
+
+    margin-top: 15px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #243047;
+
+}
+
+
+.uptime-fill {
+
+    width: 99.99%;
+
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: var(--green);
+
+}
+
+
+/* ==========================================
+   INCIDENTS
+   ========================================== */
+
+.incidents-section {
+
+    margin-bottom: 0;
+
+}
+
+
+.no-incidents {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 20px 22px;
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+}
+
+
+.incident-icon {
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: rgba(34, 197, 94, 0.12);
+
+    color: var(--green);
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+}
+
+
+.no-incidents strong {
+
+    font-size: 14px;
+
+}
+
+
+.no-incidents p {
+
+    margin-top: 2px;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+}
+
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+
+.footer {
+
+    width: 100%;
+
+    padding: 30px 24px 40px;
+
+    border-top: 1px solid var(--border);
+
+    text-align: center;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+}
+
+
+.footer p + p {
+
+    margin-top: 4px;
+
+}
+
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 600px) {
+
+    .header-container {
+
+        padding: 18px;
+
+    }
+
+
+    .main-container {
+
+        padding:
+            35px
+            16px
+            50px;
+
+    }
+
+
+    .global-status {
+
+        align-items: flex-start;
+
+        gap: 16px;
+
+        padding: 22px;
+
+    }
+
+
+    .global-status-text h1 {
+
+        font-size: 20px;
+
+    }
+
+
+    .global-status-text p {
+
+        font-size: 13px;
+
+    }
+
+
+    .service {
+
+        align-items: flex-start;
+
+        padding: 18px;
+
+    }
+
+
+    .service-status {
+
+        font-size: 12px;
+
+    }
+
+
+    .service-description {
+
+        max-width: 180px;
+
+    }
+
+
+    .uptime-section {
+
+        padding: 20px;
+
+    }
+
+
+    .uptime-value {
+
+        font-size: 28px;
+
+    }
+
+}
+
+
+@media (max-width: 420px) {
+
+    .brand-name {
+
+        font-size: 14px;
+
+    }
+
+
+    .brand-logo {
+
+        width: 40px;
+        height: 40px;
+
+        font-size: 14px;
+
+    }
+
+
+    .service {
+
+        flex-direction: column;
+
+        gap: 10px;
+
+    }
+
+
+    .service-status {
+
+        align-self: flex-start;
+
+    }
+
+
+    .uptime-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 4px;
+
+    }
+
+}
