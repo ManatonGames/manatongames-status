@@ -10,8 +10,7 @@
 
 const STATUS_CONFIG = {
 
-    // Tiempo de actualización automática
-    // 60 segundos
+    // Refresh every 60 seconds
     refreshInterval: 60000,
 
     defaultStatus: "operational"
@@ -69,12 +68,13 @@ const STATUS_TYPES = {
 
 
 // ==========================================
-// SERVICES
+// MANATON GAMES SERVICES
 // ==========================================
 
 const SERVICES = [
 
     {
+
         id: "website",
 
         name: "Website",
@@ -87,20 +87,9 @@ const SERVICES = [
 
     },
 
-    {
-        id: "roblox-games",
-
-        name: "Roblox Games",
-
-        description:
-            "Manaton Games Roblox experiences",
-
-        status:
-            "operational"
-
-    },
 
     {
+
         id: "api",
 
         name: "Manaton Games API",
@@ -113,7 +102,9 @@ const SERVICES = [
 
     },
 
+
     {
+
         id: "authentication",
 
         name: "Authentication",
@@ -130,6 +121,76 @@ const SERVICES = [
 
 
 // ==========================================
+// ROBLOX EXPERIENCES
+// ==========================================
+
+const ROBLOX_EXPERIENCES = [
+
+    {
+
+        id: "grow-a-garden-modded",
+
+        name: "Grow a Garden Modded",
+
+        description:
+            "Roblox experience",
+
+        status:
+            "operational"
+
+    },
+
+
+    {
+
+        id: "speed-escape",
+
+        name: "+1 Speed Escape",
+
+        description:
+            "Roblox experience",
+
+        status:
+            "operational"
+
+    },
+
+
+    {
+
+        id: "pls-donate",
+
+        name: "PLS DONATE",
+
+        description:
+            "Roblox experience",
+
+        status:
+            "operational"
+
+    }
+
+];
+
+
+// ==========================================
+// COMBINE ALL SYSTEMS
+// ==========================================
+
+function getAllSystems() {
+
+    return [
+
+        ...SERVICES,
+
+        ...ROBLOX_EXPERIENCES
+
+    ];
+
+}
+
+
+// ==========================================
 // DOM ELEMENTS
 // ==========================================
 
@@ -137,7 +198,7 @@ const DOM = {
 
     globalIndicator:
         document.querySelector(
-            ".status-indicator"
+            ".global-status .status-indicator"
         ),
 
     globalTitle:
@@ -150,7 +211,7 @@ const DOM = {
             ".global-status-text p"
         ),
 
-    services:
+    serviceElements:
         document.querySelectorAll(
             ".service"
         )
@@ -159,57 +220,29 @@ const DOM = {
 
 
 // ==========================================
-// INITIALIZE
+// FIND SERVICE ELEMENT
 // ==========================================
 
-function initializeStatusPage() {
+function findServiceElement(
+    serviceId
+) {
 
-    console.log(
-        "[MG STATUS] Initializing status page..."
-    );
-
-    renderServices();
-
-    updateGlobalStatus();
-
-    console.log(
-        "[MG STATUS] Status page initialized."
-    );
-
-}
+    const elements =
+        Array.from(
+            DOM.serviceElements
+        );
 
 
-// ==========================================
-// RENDER SERVICES
-// ==========================================
-
-function renderServices() {
-
-    DOM.services.forEach(
-        (serviceElement, index) => {
-
-            const service =
-                SERVICES[index];
-
-            if (!service) {
-
-                return;
-
-            }
-
-            updateServiceElement(
-                serviceElement,
-                service
-            );
-
-        }
+    return elements.find(
+        element =>
+            element.dataset.serviceId === serviceId
     );
 
 }
 
 
 // ==========================================
-// UPDATE SERVICE
+// UPDATE SERVICE ELEMENT
 // ==========================================
 
 function updateServiceElement(
@@ -217,32 +250,27 @@ function updateServiceElement(
     service
 ) {
 
+    if (!element) {
+
+        return;
+
+    }
+
+
     const status =
         STATUS_TYPES[service.status]
         || STATUS_TYPES.operational;
 
+
+    // --------------------------------------
+    // STATUS DOT
+    // --------------------------------------
 
     const statusDot =
         element.querySelector(
             ".status-dot"
         );
 
-
-    const statusText =
-        element.querySelector(
-            ".service-status span:last-child"
-        );
-
-
-    const statusContainer =
-        element.querySelector(
-            ".service-status"
-        );
-
-
-    // --------------------------------------
-    // UPDATE STATUS DOT
-    // --------------------------------------
 
     if (statusDot) {
 
@@ -253,8 +281,14 @@ function updateServiceElement(
 
 
     // --------------------------------------
-    // UPDATE STATUS CONTAINER
+    // STATUS CONTAINER
     // --------------------------------------
+
+    const statusContainer =
+        element.querySelector(
+            ".service-status"
+        );
+
 
     if (statusContainer) {
 
@@ -265,8 +299,14 @@ function updateServiceElement(
 
 
     // --------------------------------------
-    // UPDATE STATUS TEXT
+    // STATUS TEXT
     // --------------------------------------
+
+    const statusText =
+        element.querySelector(
+            ".service-status span:last-child"
+        );
+
 
     if (statusText) {
 
@@ -279,19 +319,55 @@ function updateServiceElement(
 
 
 // ==========================================
+// RENDER ALL SYSTEMS
+// ==========================================
+
+function renderSystems() {
+
+    const systems =
+        getAllSystems();
+
+
+    systems.forEach(
+        system => {
+
+            const element =
+                findServiceElement(
+                    system.id
+                );
+
+
+            updateServiceElement(
+                element,
+                system
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
 // CALCULATE GLOBAL STATUS
 // ==========================================
 
 function calculateGlobalStatus() {
 
+    const systems =
+        getAllSystems();
+
+
     const statuses =
-        SERVICES.map(
-            service =>
-                service.status
+        systems.map(
+            system =>
+                system.status
         );
 
 
-    // Major outage has the highest priority
+    // --------------------------------------
+    // MAJOR OUTAGE
+    // --------------------------------------
 
     if (
         statuses.includes(
@@ -304,7 +380,9 @@ function calculateGlobalStatus() {
     }
 
 
-    // Partial outage
+    // --------------------------------------
+    // PARTIAL OUTAGE
+    // --------------------------------------
 
     if (
         statuses.includes(
@@ -317,7 +395,9 @@ function calculateGlobalStatus() {
     }
 
 
-    // Degraded performance
+    // --------------------------------------
+    // DEGRADED PERFORMANCE
+    // --------------------------------------
 
     if (
         statuses.includes(
@@ -330,7 +410,9 @@ function calculateGlobalStatus() {
     }
 
 
-    // Maintenance
+    // --------------------------------------
+    // MAINTENANCE
+    // --------------------------------------
 
     if (
         statuses.includes(
@@ -343,7 +425,9 @@ function calculateGlobalStatus() {
     }
 
 
-    // Everything operational
+    // --------------------------------------
+    // EVERYTHING OPERATIONAL
+    // --------------------------------------
 
     return "operational";
 
@@ -360,11 +444,13 @@ function updateGlobalStatus() {
         calculateGlobalStatus();
 
 
-    const status =
-        STATUS_TYPES[globalStatus];
+    const statusInfo =
+        STATUS_TYPES[
+            globalStatus
+        ];
 
 
-    if (!status) {
+    if (!statusInfo) {
 
         return;
 
@@ -384,7 +470,7 @@ function updateGlobalStatus() {
 
 
 // ==========================================
-// GLOBAL INDICATOR
+// UPDATE GLOBAL INDICATOR
 // ==========================================
 
 function updateGlobalIndicator(
@@ -401,7 +487,16 @@ function updateGlobalIndicator(
 
 
     const statusInfo =
-        STATUS_TYPES[status];
+        STATUS_TYPES[
+            status
+        ];
+
+
+    if (!statusInfo) {
+
+        return;
+
+    }
 
 
     DOM.globalIndicator.className =
@@ -411,7 +506,7 @@ function updateGlobalIndicator(
 
 
 // ==========================================
-// GLOBAL TEXT
+// UPDATE GLOBAL TEXT
 // ==========================================
 
 function updateGlobalText(
@@ -430,6 +525,11 @@ function updateGlobalText(
 
     switch (status) {
 
+
+        // ----------------------------------
+        // OPERATIONAL
+        // ----------------------------------
+
         case "operational":
 
             DOM.globalTitle.textContent =
@@ -440,6 +540,10 @@ function updateGlobalText(
 
             break;
 
+
+        // ----------------------------------
+        // DEGRADED
+        // ----------------------------------
 
         case "degraded":
 
@@ -452,6 +556,10 @@ function updateGlobalText(
             break;
 
 
+        // ----------------------------------
+        // PARTIAL OUTAGE
+        // ----------------------------------
+
         case "partial_outage":
 
             DOM.globalTitle.textContent =
@@ -462,6 +570,10 @@ function updateGlobalText(
 
             break;
 
+
+        // ----------------------------------
+        // MAJOR OUTAGE
+        // ----------------------------------
 
         case "major_outage":
 
@@ -474,6 +586,10 @@ function updateGlobalText(
             break;
 
 
+        // ----------------------------------
+        // MAINTENANCE
+        // ----------------------------------
+
         case "maintenance":
 
             DOM.globalTitle.textContent =
@@ -484,6 +600,10 @@ function updateGlobalText(
 
             break;
 
+
+        // ----------------------------------
+        // UNKNOWN
+        // ----------------------------------
 
         default:
 
@@ -520,17 +640,23 @@ function refreshStatus() {
 
         {
             services: [],
+            experiences: [],
             incidents: []
         }
 
         For now, the status information
-        is stored locally in SERVICES.
+        is stored locally.
     */
 
 
-    renderServices();
+    renderSystems();
 
     updateGlobalStatus();
+
+
+    console.log(
+        "[MG STATUS] Status refreshed."
+    );
 
 }
 
@@ -546,7 +672,30 @@ setInterval(
 
 
 // ==========================================
-// START SYSTEM
+// INITIALIZE
+// ==========================================
+
+function initializeStatusPage() {
+
+    console.log(
+        "[MG STATUS] Initializing..."
+    );
+
+
+    renderSystems();
+
+    updateGlobalStatus();
+
+
+    console.log(
+        "[MG STATUS] Initialization complete."
+    );
+
+}
+
+
+// ==========================================
+// START
 // ==========================================
 
 if (
