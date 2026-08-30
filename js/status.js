@@ -83,7 +83,7 @@ const SERVICES = [
             "Main Manaton Games website",
 
         status:
-            "maintenance"
+            "partial-outage"
 
     },
 
@@ -96,7 +96,7 @@ const SERVICES = [
             "Manaton Games Roblox experiences",
 
         status:
-            "operational"
+            "partial-outage"
 
     },
 
@@ -109,7 +109,7 @@ const SERVICES = [
             "Backend and API services",
 
         status:
-            "degraded"
+            "partial-outage"
 
     },
 
@@ -122,7 +122,7 @@ const SERVICES = [
             "Account login and authentication services",
 
         status:
-            "operational"
+            "partial-outage"
 
     }
 
