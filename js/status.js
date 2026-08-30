@@ -10,6 +10,8 @@
 
 const STATUS_CONFIG = {
 
+    // Tiempo de actualización automática
+    // 60 segundos
     refreshInterval: 60000,
 
     defaultStatus: "operational"
@@ -107,7 +109,7 @@ const SERVICES = [
             "Backend and API services",
 
         status:
-            "degraded"
+            "operational"
 
     },
 
@@ -190,7 +192,9 @@ function renderServices() {
                 SERVICES[index];
 
             if (!service) {
+
                 return;
+
             }
 
             updateServiceElement(
@@ -230,6 +234,16 @@ function updateServiceElement(
         );
 
 
+    const statusContainer =
+        element.querySelector(
+            ".service-status"
+        );
+
+
+    // --------------------------------------
+    // UPDATE STATUS DOT
+    // --------------------------------------
+
     if (statusDot) {
 
         statusDot.className =
@@ -237,6 +251,22 @@ function updateServiceElement(
 
     }
 
+
+    // --------------------------------------
+    // UPDATE STATUS CONTAINER
+    // --------------------------------------
+
+    if (statusContainer) {
+
+        statusContainer.className =
+            `service-status ${status.colorClass}`;
+
+    }
+
+
+    // --------------------------------------
+    // UPDATE STATUS TEXT
+    // --------------------------------------
 
     if (statusText) {
 
@@ -261,6 +291,8 @@ function calculateGlobalStatus() {
         );
 
 
+    // Major outage has the highest priority
+
     if (
         statuses.includes(
             "major_outage"
@@ -271,6 +303,8 @@ function calculateGlobalStatus() {
 
     }
 
+
+    // Partial outage
 
     if (
         statuses.includes(
@@ -283,6 +317,8 @@ function calculateGlobalStatus() {
     }
 
 
+    // Degraded performance
+
     if (
         statuses.includes(
             "degraded"
@@ -294,6 +330,8 @@ function calculateGlobalStatus() {
     }
 
 
+    // Maintenance
+
     if (
         statuses.includes(
             "maintenance"
@@ -304,6 +342,8 @@ function calculateGlobalStatus() {
 
     }
 
+
+    // Everything operational
 
     return "operational";
 
@@ -325,7 +365,9 @@ function updateGlobalStatus() {
 
 
     if (!status) {
+
         return;
+
     }
 
 
@@ -468,19 +510,21 @@ function refreshStatus() {
 
 
     /*
-        Later this function will request
-        the Manaton Games Status API.
+        FUTURE API CONNECTION
 
-        Example:
+        Later this function will request:
 
-        fetch("/api/status")
+        /api/status
 
-        The API will eventually return:
+        The API will return something similar to:
 
         {
             services: [],
             incidents: []
         }
+
+        For now, the status information
+        is stored locally in SERVICES.
     */
 
 
@@ -502,12 +546,11 @@ setInterval(
 
 
 // ==========================================
-// START
+// START SYSTEM
 // ==========================================
 
 if (
-    document.readyState ===
-    "loading"
+    document.readyState === "loading"
 ) {
 
     document.addEventListener(
