@@ -83,7 +83,7 @@ const SERVICES = [
             "Main Manaton Games website",
 
         status:
-            "degraded"
+            "operational"
 
     },
 
