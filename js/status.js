@@ -10,18 +10,15 @@
 
 const STATUS_CONFIG = {
 
-    // Refresh every 60 seconds
-    refreshInterval: 60000,
+    // API endpoint
+    apiUrl: "/api/status",
+
+    // Check the API every 30 seconds
+    refreshInterval: 30000,
 
     defaultStatus: "operational"
 
 };
-
-// ==========================================
-// LAST UPDATE TIME
-// ==========================================
-
-let lastUpdateTime = new Date();
 
 
 // ==========================================
@@ -74,140 +71,14 @@ const STATUS_TYPES = {
 
 
 // ==========================================
-// MANATON GAMES SERVICES
+// CURRENT STATUS DATA
 // ==========================================
 
-const SERVICES = [
+let currentServices = [];
 
-    {
+let currentExperiences = [];
 
-        id: "website",
-
-        name: "Website",
-
-        description:
-            "Main Manaton Games website",
-
-        status:
-            "maintenance"
-
-    },
-
-
-    {
-
-        id: "api",
-
-        name: "Manaton Games API",
-
-        description:
-            "Backend and API services",
-
-        status:
-            "operational"
-
-    },
-
-
-    {
-
-        id: "authentication",
-
-        name: "Authentication",
-
-        description:
-            "Account login and authentication services",
-
-        status:
-            "operational"
-
-    }
-
-];
-
-
-// ==========================================
-// ROBLOX EXPERIENCES
-// ==========================================
-
-const ROBLOX_EXPERIENCES = [
-
-    {
-
-        id: "roblox-universe",
-
-        name: "Roblox Universe",
-
-        description:
-            "Roblox experience",
-
-        status:
-            "maintenance"
-
-    },
-
-     {
-
-        id: "grow-a-garden-modded",
-
-        name: "Grow a Garden Modded",
-
-        description:
-            "Roblox experience",
-
-        status:
-            "maintenance"
-
-    },
-
-
-    {
-
-        id: "speed-escape",
-
-        name: "+1 Speed Escape",
-
-        description:
-            "Roblox experience",
-
-        status:
-            "operational"
-
-    },
-
-
-    {
-
-        id: "pls-donate",
-
-        name: "PLS DONATE",
-
-        description:
-            "Roblox experience",
-
-        status:
-            "operational"
-
-    }
-
-];
-
-
-// ==========================================
-// COMBINE ALL SYSTEMS
-// ==========================================
-
-function getAllSystems() {
-
-    return [
-
-        ...SERVICES,
-
-        ...ROBLOX_EXPERIENCES
-
-    ];
-
-}
+let lastUpdateTime = null;
 
 
 // ==========================================
@@ -344,31 +215,70 @@ function updateServiceElement(
 
 
 // ==========================================
-// RENDER ALL SYSTEMS
+// RENDER SERVICES
 // ==========================================
 
-function renderSystems() {
+function renderServices() {
 
-    const systems =
-        getAllSystems();
-
-
-    systems.forEach(
-        system => {
+    currentServices.forEach(
+        service => {
 
             const element =
                 findServiceElement(
-                    system.id
+                    service.id
                 );
 
 
             updateServiceElement(
                 element,
-                system
+                service
             );
 
         }
     );
+
+}
+
+
+// ==========================================
+// RENDER ROBLOX EXPERIENCES
+// ==========================================
+
+function renderExperiences() {
+
+    currentExperiences.forEach(
+        experience => {
+
+            const element =
+                findServiceElement(
+                    experience.id
+                );
+
+
+            updateServiceElement(
+                element,
+                experience
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// GET ALL SYSTEMS
+// ==========================================
+
+function getAllSystems() {
+
+    return [
+
+        ...currentServices,
+
+        ...currentExperiences
+
+    ];
 
 }
 
@@ -421,7 +331,7 @@ function calculateGlobalStatus() {
 
 
     // --------------------------------------
-    // DEGRADED PERFORMANCE
+    // DEGRADED
     // --------------------------------------
 
     if (
@@ -485,7 +395,6 @@ function updateGlobalStatus() {
     updateGlobalIndicator(
         globalStatus
     );
-
 
     updateGlobalText(
         globalStatus
@@ -551,10 +460,6 @@ function updateGlobalText(
     switch (status) {
 
 
-        // ----------------------------------
-        // OPERATIONAL
-        // ----------------------------------
-
         case "operational":
 
             DOM.globalTitle.textContent =
@@ -565,10 +470,6 @@ function updateGlobalText(
 
             break;
 
-
-        // ----------------------------------
-        // DEGRADED
-        // ----------------------------------
 
         case "degraded":
 
@@ -581,10 +482,6 @@ function updateGlobalText(
             break;
 
 
-        // ----------------------------------
-        // PARTIAL OUTAGE
-        // ----------------------------------
-
         case "partial_outage":
 
             DOM.globalTitle.textContent =
@@ -595,10 +492,6 @@ function updateGlobalText(
 
             break;
 
-
-        // ----------------------------------
-        // MAJOR OUTAGE
-        // ----------------------------------
 
         case "major_outage":
 
@@ -611,10 +504,6 @@ function updateGlobalText(
             break;
 
 
-        // ----------------------------------
-        // MAINTENANCE
-        // ----------------------------------
-
         case "maintenance":
 
             DOM.globalTitle.textContent =
@@ -625,10 +514,6 @@ function updateGlobalText(
 
             break;
 
-
-        // ----------------------------------
-        // UNKNOWN
-        // ----------------------------------
 
         default:
 
@@ -642,20 +527,26 @@ function updateGlobalText(
 
 }
 
+
 // ==========================================
 // UPDATE LAST UPDATED
 // ==========================================
 
 function updateLastUpdated() {
 
-    if (!DOM.lastUpdated) {
+    if (
+        !DOM.lastUpdated ||
+        !lastUpdateTime
+    ) {
 
         return;
 
     }
 
 
-    const now = new Date();
+    const now =
+        new Date();
+
 
     const difference =
         Math.floor(
@@ -663,11 +554,9 @@ function updateLastUpdated() {
         );
 
 
-    // --------------------------------------
-    // LESS THAN ONE MINUTE
-    // --------------------------------------
-
-    if (difference < 60) {
+    if (
+        difference < 60
+    ) {
 
         DOM.lastUpdated.textContent =
             "Just now";
@@ -677,17 +566,15 @@ function updateLastUpdated() {
     }
 
 
-    // --------------------------------------
-    // MINUTES
-    // --------------------------------------
-
     const minutes =
         Math.floor(
             difference / 60
         );
 
 
-    if (minutes === 1) {
+    if (
+        minutes === 1
+    ) {
 
         DOM.lastUpdated.textContent =
             "1 minute ago";
@@ -697,80 +584,176 @@ function updateLastUpdated() {
     }
 
 
+    if (
+        minutes < 60
+    ) {
+
+        DOM.lastUpdated.textContent =
+            `${minutes} minutes ago`;
+
+        return;
+
+    }
+
+
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
+
+
+    if (
+        hours === 1
+    ) {
+
+        DOM.lastUpdated.textContent =
+            "1 hour ago";
+
+        return;
+
+    }
+
+
     DOM.lastUpdated.textContent =
-        `${minutes} minutes ago`;
-
-}
-
-// ==========================================
-// REFRESH STATUS    
-// ==========================================
-
-function refreshStatus() {
-
-    console.log(
-        "[MG STATUS] Refreshing status..."
-    );
-
-
-    renderSystems();
-
-    updateGlobalStatus();
-
-
-    // Register update time
-
-    lastUpdateTime =
-        new Date();
-
-
-    updateLastUpdated();
-
-
-    console.log(
-        "[MG STATUS] Status refreshed."
-    );
+        `${hours} hours ago`;
 
 }
 
 
 // ==========================================
-// AUTOMATIC REFRESH
+// FETCH STATUS API
 // ==========================================
 
-setInterval(
-    refreshStatus,
-    STATUS_CONFIG.refreshInterval
-);
+async function fetchStatus() {
 
-// ==========================================
-// UPDATE RELATIVE TIME
-// ==========================================
+    console.log(
+        "[MG STATUS] Checking API..."
+    );
 
-setInterval(
-    updateLastUpdated,
-    1000
-);
+
+    try {
+
+        const response =
+            await fetch(
+                STATUS_CONFIG.apiUrl,
+                {
+                    method: "GET",
+
+                    cache: "no-store",
+
+                    headers: {
+
+                        "Accept":
+                            "application/json"
+
+                    }
+
+                }
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !data.success
+        ) {
+
+            throw new Error(
+                "API returned an unsuccessful response."
+            );
+
+        }
+
+
+        // ----------------------------------
+        // SAVE DATA
+        // ----------------------------------
+
+        currentServices =
+            Array.isArray(
+                data.services
+            )
+                ? data.services
+                : [];
+
+
+        currentExperiences =
+            Array.isArray(
+                data.experiences
+            )
+                ? data.experiences
+                : [];
+
+
+        // ----------------------------------
+        // UPDATE PAGE
+        // ----------------------------------
+
+        renderServices();
+
+        renderExperiences();
+
+        updateGlobalStatus();
+
+
+        // ----------------------------------
+        // UPDATE LAST UPDATE TIME
+        // ----------------------------------
+
+        lastUpdateTime =
+            data.updatedAt
+                ? new Date(
+                    data.updatedAt
+                )
+                : new Date();
+
+
+        updateLastUpdated();
+
+
+        console.log(
+            "[MG STATUS] API updated successfully."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "[MG STATUS] API error:",
+            error
+        );
+
+    }
+
+}
 
 
 // ==========================================
 // INITIALIZE
 // ==========================================
 
-function initializeStatusPage() {
+async function initializeStatusPage() {
 
     console.log(
         "[MG STATUS] Initializing..."
     );
 
 
-    lastUpdateTime =
-        new Date();
+    await fetchStatus();
 
-
-    renderSystems();
-
-    updateGlobalStatus();
 
     updateLastUpdated();
 
@@ -780,6 +763,26 @@ function initializeStatusPage() {
     );
 
 }
+
+
+// ==========================================
+// AUTOMATIC API REFRESH
+// ==========================================
+
+setInterval(
+    fetchStatus,
+    STATUS_CONFIG.refreshInterval
+);
+
+
+// ==========================================
+// AUTOMATIC RELATIVE TIME
+// ==========================================
+
+setInterval(
+    updateLastUpdated,
+    1000
+);
 
 
 // ==========================================
