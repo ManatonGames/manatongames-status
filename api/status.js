@@ -84,7 +84,7 @@ export default function handler(req, res) {
 
             name: "Grow a Garden Modded",
 
-            status: "maintenance"
+            status: "operational"
 
         },
 
