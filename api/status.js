@@ -43,7 +43,7 @@ export default function handler(req, res) {
 
             name: "Website",
 
-            status: "operational"
+            status: "maintenance"
 
         },
 
