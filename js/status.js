@@ -1,19 +1,11 @@
 // ==========================================
-// MANATON GAMES STATUS
-// STATUS SYSTEM
-// ==========================================
-
-
-// ==========================================
-// CONFIGURATION
+// MANATON GAMES STATUS SYSTEM
 // ==========================================
 
 const STATUS_CONFIG = {
 
-    // API endpoint
     apiUrl: "/api/status",
 
-    // Check the API every 30 seconds
     refreshInterval: 30000,
 
     defaultStatus: "operational"
@@ -25,636 +17,121 @@ const STATUS_CONFIG = {
 // STATUS DEFINITIONS
 // ==========================================
 
-const STATUS_TYPES = {
+const STATUS_DEFINITIONS = {
 
     operational: {
-
         label: "Operational",
-
-        colorClass: "operational"
-
+        className: "operational"
     },
 
     degraded: {
-
         label: "Degraded Performance",
-
-        colorClass: "degraded"
-
+        className: "degraded"
     },
 
     partial_outage: {
-
         label: "Partial Outage",
-
-        colorClass: "partial-outage"
-
+        className: "partial-outage"
     },
 
     major_outage: {
-
         label: "Major Outage",
-
-        colorClass: "major-outage"
-
+        className: "major-outage"
     },
 
     maintenance: {
-
         label: "Under Maintenance",
-
-        colorClass: "maintenance"
-
+        className: "maintenance"
     }
 
 };
 
 
 // ==========================================
-// CURRENT STATUS DATA
+// INCIDENT DEFINITIONS
 // ==========================================
 
-let currentServices = [];
+const INCIDENT_STATUS_LABELS = {
 
-let currentExperiences = [];
+    investigating: "Investigating",
 
-let lastUpdateTime = null;
+    identified: "Identified",
 
+    monitoring: "Monitoring",
 
-// ==========================================
-// DOM ELEMENTS
-// ==========================================
-
-const DOM = {
-
-    globalIndicator:
-        document.querySelector(
-            ".global-status .status-indicator"
-        ),
-
-    globalTitle:
-        document.querySelector(
-            ".global-status-text h1"
-        ),
-
-    globalDescription:
-        document.querySelector(
-            ".global-status-text p"
-        ),
-
-    lastUpdated:
-        document.querySelector(
-            "#last-updated"
-        ),
-
-    serviceElements:
-        document.querySelectorAll(
-            ".service"
-        )
+    resolved: "Resolved"
 
 };
 
 
 // ==========================================
-// FIND SERVICE ELEMENT
+// GLOBAL STATUS PRIORITY
 // ==========================================
 
-function findServiceElement(
-    serviceId
-) {
+const GLOBAL_STATUS_PRIORITY = [
 
-    const elements =
-        Array.from(
-            DOM.serviceElements
+    "major_outage",
+
+    "partial_outage",
+
+    "degraded",
+
+    "maintenance",
+
+    "operational"
+
+];
+
+
+// ==========================================
+// DOM READY
+// ==========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        updateStatus();
+
+        setInterval(
+            updateStatus,
+            STATUS_CONFIG.refreshInterval
         );
 
+        updateLastUpdated();
 
-    return elements.find(
-        element =>
-            element.dataset.serviceId === serviceId
-    );
-
-}
-
-
-// ==========================================
-// UPDATE SERVICE ELEMENT
-// ==========================================
-
-function updateServiceElement(
-    element,
-    service
-) {
-
-    if (!element) {
-
-        return;
-
-    }
-
-
-    const status =
-        STATUS_TYPES[service.status]
-        || STATUS_TYPES.operational;
-
-
-    // --------------------------------------
-    // STATUS DOT
-    // --------------------------------------
-
-    const statusDot =
-        element.querySelector(
-            ".status-dot"
+        setInterval(
+            updateLastUpdated,
+            1000
         );
 
-
-    if (statusDot) {
-
-        statusDot.className =
-            `status-dot ${status.colorClass}`;
-
     }
-
-
-    // --------------------------------------
-    // STATUS CONTAINER
-    // --------------------------------------
-
-    const statusContainer =
-        element.querySelector(
-            ".service-status"
-        );
-
-
-    if (statusContainer) {
-
-        statusContainer.className =
-            `service-status ${status.colorClass}`;
-
-    }
-
-
-    // --------------------------------------
-    // STATUS TEXT
-    // --------------------------------------
-
-    const statusText =
-        element.querySelector(
-            ".service-status span:last-child"
-        );
-
-
-    if (statusText) {
-
-        statusText.textContent =
-            status.label;
-
-    }
-
-}
+);
 
 
 // ==========================================
-// RENDER SERVICES
+// FETCH STATUS
 // ==========================================
 
-function renderServices() {
-
-    currentServices.forEach(
-        service => {
-
-            const element =
-                findServiceElement(
-                    service.id
-                );
-
-
-            updateServiceElement(
-                element,
-                service
-            );
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// RENDER ROBLOX EXPERIENCES
-// ==========================================
-
-function renderExperiences() {
-
-    currentExperiences.forEach(
-        experience => {
-
-            const element =
-                findServiceElement(
-                    experience.id
-                );
-
-
-            updateServiceElement(
-                element,
-                experience
-            );
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// GET ALL SYSTEMS
-// ==========================================
-
-function getAllSystems() {
-
-    return [
-
-        ...currentServices,
-
-        ...currentExperiences
-
-    ];
-
-}
-
-
-// ==========================================
-// CALCULATE GLOBAL STATUS
-// ==========================================
-
-function calculateGlobalStatus() {
-
-    const systems =
-        getAllSystems();
-
-
-    const statuses =
-        systems.map(
-            system =>
-                system.status
-        );
-
-
-    // --------------------------------------
-    // MAJOR OUTAGE
-    // --------------------------------------
-
-    if (
-        statuses.includes(
-            "major_outage"
-        )
-    ) {
-
-        return "major_outage";
-
-    }
-
-
-    // --------------------------------------
-    // PARTIAL OUTAGE
-    // --------------------------------------
-
-    if (
-        statuses.includes(
-            "partial_outage"
-        )
-    ) {
-
-        return "partial_outage";
-
-    }
-
-
-    // --------------------------------------
-    // DEGRADED
-    // --------------------------------------
-
-    if (
-        statuses.includes(
-            "degraded"
-        )
-    ) {
-
-        return "degraded";
-
-    }
-
-
-    // --------------------------------------
-    // MAINTENANCE
-    // --------------------------------------
-
-    if (
-        statuses.includes(
-            "maintenance"
-        )
-    ) {
-
-        return "maintenance";
-
-    }
-
-
-    // --------------------------------------
-    // EVERYTHING OPERATIONAL
-    // --------------------------------------
-
-    return "operational";
-
-}
-
-
-// ==========================================
-// UPDATE GLOBAL STATUS
-// ==========================================
-
-function updateGlobalStatus() {
-
-    const globalStatus =
-        calculateGlobalStatus();
-
-
-    const statusInfo =
-        STATUS_TYPES[
-            globalStatus
-        ];
-
-
-    if (!statusInfo) {
-
-        return;
-
-    }
-
-
-    updateGlobalIndicator(
-        globalStatus
-    );
-
-    updateGlobalText(
-        globalStatus
-    );
-
-}
-
-
-// ==========================================
-// UPDATE GLOBAL INDICATOR
-// ==========================================
-
-function updateGlobalIndicator(
-    status
-) {
-
-    if (
-        !DOM.globalIndicator
-    ) {
-
-        return;
-
-    }
-
-
-    const statusInfo =
-        STATUS_TYPES[
-            status
-        ];
-
-
-    if (!statusInfo) {
-
-        return;
-
-    }
-
-
-    DOM.globalIndicator.className =
-        `status-indicator ${statusInfo.colorClass}`;
-
-}
-
-
-// ==========================================
-// UPDATE GLOBAL TEXT
-// ==========================================
-
-function updateGlobalText(
-    status
-) {
-
-    if (
-        !DOM.globalTitle ||
-        !DOM.globalDescription
-    ) {
-
-        return;
-
-    }
-
-
-    switch (status) {
-
-
-        case "operational":
-
-            DOM.globalTitle.textContent =
-                "All Systems Operational";
-
-            DOM.globalDescription.textContent =
-                "All Manaton Games services are operating normally.";
-
-            break;
-
-
-        case "degraded":
-
-            DOM.globalTitle.textContent =
-                "Some Systems Experiencing Issues";
-
-            DOM.globalDescription.textContent =
-                "Some Manaton Games services are experiencing degraded performance.";
-
-            break;
-
-
-        case "partial_outage":
-
-            DOM.globalTitle.textContent =
-                "Partial System Outage";
-
-            DOM.globalDescription.textContent =
-                "Some Manaton Games services are currently unavailable.";
-
-            break;
-
-
-        case "major_outage":
-
-            DOM.globalTitle.textContent =
-                "Major System Outage";
-
-            DOM.globalDescription.textContent =
-                "Multiple Manaton Games services are currently unavailable.";
-
-            break;
-
-
-        case "maintenance":
-
-            DOM.globalTitle.textContent =
-                "Scheduled Maintenance";
-
-            DOM.globalDescription.textContent =
-                "Some Manaton Games services are currently undergoing maintenance.";
-
-            break;
-
-
-        default:
-
-            DOM.globalTitle.textContent =
-                "System Status";
-
-            DOM.globalDescription.textContent =
-                "Current system status is unavailable.";
-
-    }
-
-}
-
-
-// ==========================================
-// UPDATE LAST UPDATED
-// ==========================================
-
-function updateLastUpdated() {
-
-    if (
-        !DOM.lastUpdated ||
-        !lastUpdateTime
-    ) {
-
-        return;
-
-    }
-
-
-    const now =
-        new Date();
-
-
-    const difference =
-        Math.floor(
-            (now - lastUpdateTime) / 1000
-        );
-
-
-    if (
-        difference < 60
-    ) {
-
-        DOM.lastUpdated.textContent =
-            "Just now";
-
-        return;
-
-    }
-
-
-    const minutes =
-        Math.floor(
-            difference / 60
-        );
-
-
-    if (
-        minutes === 1
-    ) {
-
-        DOM.lastUpdated.textContent =
-            "1 minute ago";
-
-        return;
-
-    }
-
-
-    if (
-        minutes < 60
-    ) {
-
-        DOM.lastUpdated.textContent =
-            `${minutes} minutes ago`;
-
-        return;
-
-    }
-
-
-    const hours =
-        Math.floor(
-            minutes / 60
-        );
-
-
-    if (
-        hours === 1
-    ) {
-
-        DOM.lastUpdated.textContent =
-            "1 hour ago";
-
-        return;
-
-    }
-
-
-    DOM.lastUpdated.textContent =
-        `${hours} hours ago`;
-
-}
-
-
-// ==========================================
-// FETCH STATUS API
-// ==========================================
-
-async function fetchStatus() {
-
-    console.log(
-        "[MG STATUS] Checking API..."
-    );
-
+async function updateStatus() {
 
     try {
 
-        const response =
-            await fetch(
-                STATUS_CONFIG.apiUrl,
-                {
-                    method: "GET",
+        const response = await fetch(
+            STATUS_CONFIG.apiUrl,
+            {
+                method: "GET",
 
-                    cache: "no-store",
+                cache: "no-store",
 
-                    headers: {
-
-                        "Accept":
-                            "application/json"
-
-                    }
-
+                headers: {
+                    "Accept": "application/json"
                 }
-            );
+            }
+        );
 
 
-        if (
-            !response.ok
-        ) {
+        if (!response.ok) {
 
             throw new Error(
                 `HTTP ${response.status}`
@@ -667,9 +144,7 @@ async function fetchStatus() {
             await response.json();
 
 
-        if (
-            !data.success
-        ) {
+        if (!data.success) {
 
             throw new Error(
                 "API returned an unsuccessful response."
@@ -678,61 +153,55 @@ async function fetchStatus() {
         }
 
 
-        // ----------------------------------
-        // SAVE DATA
-        // ----------------------------------
+        // ==================================
+        // UPDATE SERVICES
+        // ==================================
 
-        currentServices =
-            Array.isArray(
-                data.services
-            )
-                ? data.services
-                : [];
-
-
-        currentExperiences =
-            Array.isArray(
-                data.experiences
-            )
-                ? data.experiences
-                : [];
-
-
-        // ----------------------------------
-        // UPDATE PAGE
-        // ----------------------------------
-
-        renderServices();
-
-        renderExperiences();
-
-        updateGlobalStatus();
-
-
-        // ----------------------------------
-        // UPDATE LAST UPDATE TIME
-        // ----------------------------------
-
-        lastUpdateTime =
-            data.updatedAt
-                ? new Date(
-                    data.updatedAt
-                )
-                : new Date();
-
-
-        updateLastUpdated();
-
-
-        console.log(
-            "[MG STATUS] API updated successfully."
+        updateServices(
+            data.services || []
         );
+
+
+        // ==================================
+        // UPDATE EXPERIENCES
+        // ==================================
+
+        updateServices(
+            data.experiences || []
+        );
+
+
+        // ==================================
+        // UPDATE GLOBAL STATUS
+        // ==================================
+
+        updateGlobalStatus(
+            data.services || [],
+            data.experiences || []
+        );
+
+
+        // ==================================
+        // UPDATE INCIDENTS
+        // ==================================
+
+        updateIncidents(
+            data.incidents || []
+        );
+
+
+        // ==================================
+        // LAST UPDATED
+        // ==================================
+
+        window.lastStatusUpdate =
+            new Date();
 
 
     } catch (error) {
 
         console.error(
-            "[MG STATUS] API error:",
+            "[STATUS ERROR]",
             error
         );
 
@@ -742,64 +211,607 @@ async function fetchStatus() {
 
 
 // ==========================================
-// INITIALIZE
+// UPDATE SERVICES
 // ==========================================
 
-async function initializeStatusPage() {
+function updateServices(items) {
 
-    console.log(
-        "[MG STATUS] Initializing..."
-    );
+    items.forEach(item => {
 
-
-    await fetchStatus();
-
-
-    updateLastUpdated();
+        const element =
+            document.querySelector(
+                `[data-service-id="${item.id}"]`
+            );
 
 
-    console.log(
-        "[MG STATUS] Initialization complete."
+        if (!element) {
+
+            return;
+
+        }
+
+
+        const status =
+            item.status ||
+            STATUS_CONFIG.defaultStatus;
+
+
+        const definition =
+            STATUS_DEFINITIONS[status] ||
+            STATUS_DEFINITIONS.operational;
+
+
+        // ----------------------------------
+        // SERVICE STATUS CONTAINER
+        // ----------------------------------
+
+        const statusElement =
+            element.querySelector(
+                ".service-status"
+            );
+
+
+        if (statusElement) {
+
+            statusElement.className =
+                `service-status ${definition.className}`;
+
+
+            statusElement.innerHTML = `
+
+                <span
+                    class="status-dot ${definition.className}"
+                ></span>
+
+                <span>
+                    ${definition.label}
+                </span>
+
+            `;
+
+        }
+
+    });
+
+}
+
+
+// ==========================================
+// UPDATE GLOBAL STATUS
+// ==========================================
+
+function updateGlobalStatus(
+    services,
+    experiences
+) {
+
+    const allItems = [
+
+        ...services,
+
+        ...experiences
+
+    ];
+
+
+    let globalStatus =
+        "operational";
+
+
+    for (
+        const priorityStatus
+        of GLOBAL_STATUS_PRIORITY
+    ) {
+
+        const hasStatus =
+            allItems.some(
+                item =>
+                    item.status === priorityStatus
+            );
+
+
+        if (hasStatus) {
+
+            globalStatus =
+                priorityStatus;
+
+            break;
+
+        }
+
+    }
+
+
+    const definition =
+        STATUS_DEFINITIONS[globalStatus] ||
+        STATUS_DEFINITIONS.operational;
+
+
+    const indicator =
+        document.querySelector(
+            ".global-status .status-indicator"
+        );
+
+
+    const title =
+        document.querySelector(
+            ".global-status h1"
+        );
+
+
+    const description =
+        document.querySelector(
+            ".global-status p"
+        );
+
+
+    if (indicator) {
+
+        indicator.className =
+            `status-indicator ${definition.className}`;
+
+    }
+
+
+    if (title) {
+
+        title.textContent =
+            getGlobalStatusTitle(
+                globalStatus
+            );
+
+    }
+
+
+    if (description) {
+
+        description.textContent =
+            getGlobalStatusDescription(
+                globalStatus
+            );
+
+    }
+
+}
+
+
+// ==========================================
+// GLOBAL STATUS TITLE
+// ==========================================
+
+function getGlobalStatusTitle(status) {
+
+    switch (status) {
+
+        case "major_outage":
+
+            return "Major System Outage";
+
+
+        case "partial_outage":
+
+            return "Partial System Outage";
+
+
+        case "degraded":
+
+            return "Some Systems Experiencing Issues";
+
+
+        case "maintenance":
+
+            return "Some Systems Under Maintenance";
+
+
+        default:
+
+            return "All Systems Operational";
+
+    }
+
+}
+
+
+// ==========================================
+// GLOBAL STATUS DESCRIPTION
+// ==========================================
+
+function getGlobalStatusDescription(status) {
+
+    switch (status) {
+
+        case "major_outage":
+
+            return "Major problems are currently affecting Manaton Games services.";
+
+
+        case "partial_outage":
+
+            return "Some Manaton Games services are currently experiencing outages.";
+
+
+        case "degraded":
+
+            return "Some Manaton Games services are experiencing degraded performance.";
+
+
+        case "maintenance":
+
+            return "Some Manaton Games services are currently undergoing maintenance.";
+
+
+        default:
+
+            return "All Manaton Games services are operating normally.";
+
+    }
+
+}
+
+
+// ==========================================
+// UPDATE INCIDENTS
+// ==========================================
+
+function updateIncidents(incidents) {
+
+    const container =
+        document.getElementById(
+            "incidents-container"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    // --------------------------------------
+    // NO INCIDENTS
+    // --------------------------------------
+
+    if (!incidents.length) {
+
+        container.innerHTML = `
+
+            <div class="no-incidents">
+
+                <div class="incident-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <strong>
+                        No incidents reported
+                    </strong>
+
+                    <p>
+                        There have been no incidents recently.
+                    </p>
+
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    // --------------------------------------
+    // INCIDENTS
+    // --------------------------------------
+
+    container.innerHTML =
+        incidents
+            .map(
+                incident =>
+                    createIncidentHTML(
+                        incident
+                    )
+            )
+            .join("");
+
+}
+
+
+// ==========================================
+// CREATE INCIDENT HTML
+// ==========================================
+
+function createIncidentHTML(incident) {
+
+    const status =
+        incident.status ||
+        "investigating";
+
+
+    const statusLabel =
+        INCIDENT_STATUS_LABELS[status] ||
+        "Investigating";
+
+
+    const impact =
+        incident.impact ||
+        "minor";
+
+
+    const startedAt =
+        formatDate(
+            incident.started_at
+        );
+
+
+    const resolvedAt =
+        incident.resolved_at
+            ? formatDate(
+                incident.resolved_at
+            )
+            : null;
+
+
+    const impactLabel =
+        capitalizeFirstLetter(
+            impact
+        );
+
+
+    return `
+
+        <article
+            class="incident-card"
+            data-incident-id="${incident.id}"
+        >
+
+            <div class="incident-card-header">
+
+                <div class="incident-card-title">
+
+                    <div class="incident-icon incident-status-${status}">
+                        ${getIncidentIcon(status)}
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            ${escapeHTML(
+                                incident.title
+                            )}
+                        </h3>
+
+                        <span
+                            class="incident-status-label incident-status-${status}"
+                        >
+                            ${statusLabel}
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span
+                    class="incident-impact incident-impact-${impact}"
+                >
+                    ${impactLabel}
+                </span>
+
+            </div>
+
+
+            ${
+                incident.description
+                    ? `
+                        <p class="incident-description">
+                            ${escapeHTML(
+                                incident.description
+                            )}
+                        </p>
+                    `
+                    : ""
+            }
+
+
+            <div class="incident-meta">
+
+                <span>
+                    Started: ${startedAt}
+                </span>
+
+                ${
+                    resolvedAt
+                        ? `
+                            <span>
+                                Resolved: ${resolvedAt}
+                            </span>
+                        `
+                        : ""
+                }
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+// ==========================================
+// INCIDENT ICON
+// ==========================================
+
+function getIncidentIcon(status) {
+
+    switch (status) {
+
+        case "resolved":
+
+            return "✓";
+
+
+        case "monitoring":
+
+            return "👁";
+
+
+        case "identified":
+
+            return "🔧";
+
+
+        default:
+
+            return "!";
+
+    }
+
+}
+
+
+// ==========================================
+// DATE FORMAT
+// ==========================================
+
+function formatDate(dateString) {
+
+    if (!dateString) {
+
+        return "Unknown";
+
+    }
+
+
+    const date =
+        new Date(dateString);
+
+
+    if (Number.isNaN(
+        date.getTime()
+    )) {
+
+        return "Unknown";
+
+    }
+
+
+    return date.toLocaleString(
+        "en-US",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit"
+        }
     );
 
 }
 
 
 // ==========================================
-// AUTOMATIC API REFRESH
+// HTML ESCAPE
 // ==========================================
 
-setInterval(
-    fetchStatus,
-    STATUS_CONFIG.refreshInterval
-);
+function escapeHTML(value) {
+
+    return String(value)
+
+        .replaceAll("&", "&amp;")
+
+        .replaceAll("<", "&lt;")
+
+        .replaceAll(">", "&gt;")
+
+        .replaceAll('"', "&quot;")
+
+        .replaceAll("'", "&#039;");
+
+}
 
 
 // ==========================================
-// AUTOMATIC RELATIVE TIME
+// CAPITALIZE
 // ==========================================
 
-setInterval(
-    updateLastUpdated,
-    1000
-);
+function capitalizeFirstLetter(value) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+
+    return value.charAt(0).toUpperCase()
+        + value.slice(1);
+
+}
 
 
 // ==========================================
-// START
+// LAST UPDATED
 // ==========================================
 
-if (
-    document.readyState === "loading"
-) {
+function updateLastUpdated() {
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeStatusPage
-    );
+    const element =
+        document.getElementById(
+            "last-updated"
+        );
 
-} else {
 
-    initializeStatusPage();
+    if (!element) {
+
+        return;
+
+    }
+
+
+    if (!window.lastStatusUpdate) {
+
+        element.textContent =
+            "Just now";
+
+        return;
+
+    }
+
+
+    const seconds =
+        Math.floor(
+            (
+                Date.now()
+                - window.lastStatusUpdate.getTime()
+            ) / 1000
+        );
+
+
+    if (seconds < 5) {
+
+        element.textContent =
+            "Just now";
+
+    } else if (seconds < 60) {
+
+        element.textContent =
+            `${seconds} seconds ago`;
+
+    } else {
+
+        const minutes =
+            Math.floor(
+                seconds / 60
+            );
+
+
+        element.textContent =
+            `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+
+    }
 
 }
