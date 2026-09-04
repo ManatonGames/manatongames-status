@@ -132,18 +132,35 @@ export default async function handler(req, res) {
             }
         );
 
+// ==========================================
+// MONITOR CHECKS
+// ==========================================
+
+const monitorChecks = await sql`
+    SELECT
+        id,
+        service_id,
+        experience_id,
+        status,
+        response_time_ms,
+        checked_at
+    FROM monitor_checks
+    ORDER BY checked_at DESC
+`;
+
 
         // ==========================================
         // RESPONSE
         // ==========================================
 
         return res.status(200).json({
-            success: true,
-            updatedAt: new Date().toISOString(),
-            services,
-            experiences,
-            incidents: incidentsWithUpdates
-        });
+    success: true,
+    updatedAt: new Date().toISOString(),
+    services,
+    experiences,
+    incidents: incidentsWithUpdates,
+    monitorChecks
+});
 
     } catch (error) {
 
