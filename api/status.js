@@ -1,10 +1,28 @@
 // ==========================================
 // MANATON GAMES STATUS API
+// Neon Database + Vercel
 // ==========================================
 
-export default function handler(req, res) {
+import { neon } from "@neondatabase/serverless";
 
-    // Allow requests from the status website
+
+// ==========================================
+// DATABASE CONNECTION
+// ==========================================
+
+const sql = neon(process.env.DATABASE_URL);
+
+
+// ==========================================
+// API HANDLER
+// ==========================================
+
+export default async function handler(req, res) {
+
+    // --------------------------------------
+    // CORS
+    // --------------------------------------
+
     res.setHeader(
         "Access-Control-Allow-Origin",
         "*"
@@ -15,8 +33,25 @@ export default function handler(req, res) {
         "GET"
     );
 
+    res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type"
+    );
 
-    // Only GET requests are allowed
+
+    // --------------------------------------
+    // SECURITY
+    // --------------------------------------
+
+    res.setHeader(
+        "X-Robots-Tag",
+        "noindex, nofollow"
+    );
+
+
+    // --------------------------------------
+    // METHOD CHECK
+    // --------------------------------------
 
     if (req.method !== "GET") {
 
@@ -31,114 +66,104 @@ export default function handler(req, res) {
     }
 
 
-    // ======================================
-    // SERVICES
-    // ======================================
+    try {
 
-    const services = [
+        // ==================================
+        // SERVICES
+        // ==================================
 
-        {
-
-            id: "website",
-
-            name: "Website",
-
-            status: "maintenance"
-
-        },
-
-
-        {
-
-            id: "api",
-
-            name: "Manaton Games API",
-
-            status: "operational"
-
-        },
+        const services = await sql`
+            SELECT
+                id,
+                name,
+                description,
+                status,
+                category,
+                created_at,
+                updated_at
+            FROM services
+            ORDER BY created_at ASC
+        `;
 
 
-        {
+        // ==================================
+        // ROBLOX EXPERIENCES
+        // ==================================
 
-            id: "authentication",
-
-            name: "Authentication",
-
-            status: "operational"
-
-        }
-
-    ];
-
-
-    // ======================================
-    // ROBLOX EXPERIENCES
-    // ======================================
-
-    const experiences = [
-
-        {
-
-            id: "grow-a-garden-modded",
-
-            name: "Grow a Garden Modded",
-
-            status: "operational"
-
-        },
-
-        {
-
-            id: "roblox-universe",
-
-            name: "Roblox Universe",
-
-            status: "operational"
-
-        },
-
-        {
-
-            id: "speed-escape",
-
-            name: "+1 Speed Escape",
-
-            status: "operational"
-
-        },
+        const experiences = await sql`
+            SELECT
+                id,
+                name,
+                description,
+                status,
+                roblox_universe_id,
+                created_at,
+                updated_at
+            FROM experiences
+            ORDER BY created_at ASC
+        `;
 
 
-        {
+        // ==================================
+        // INCIDENTS
+        // ==================================
 
-            id: "pls-donate",
+        const incidents = await sql`
+            SELECT
+                id,
+                service_id,
+                experience_id,
+                title,
+                description,
+                status,
+                impact,
+                started_at,
+                resolved_at,
+                created_at,
+                updated_at
+            FROM incidents
+            ORDER BY started_at DESC
+        `;
 
-            name: "PLS DONATE",
 
-            status: "operational"
+        // ==================================
+        // RESPONSE
+        // ==================================
 
-        }
+        return res.status(200).json({
 
-    ];
+            success: true,
 
+            updatedAt:
+                new Date().toISOString(),
 
-    // ======================================
-    // RESPONSE
-    // ======================================
+            services,
 
-    return res.status(200).json({
+            experiences,
 
-        success: true,
+            incidents
 
-        updatedAt:
-            new Date().toISOString(),
+        });
 
-        services,
+    } catch (error) {
 
-        experiences,
+        // ==================================
+        // ERROR
+        // ==================================
 
-        incidents: []
+        console.error(
+            "[STATUS API ERROR]",
+            error
+        );
 
-    });
+        return res.status(500).json({
+
+            success: false,
+
+            error: "Unable to retrieve status information."
+
+        });
+
+    }
 
 }
