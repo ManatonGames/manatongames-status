@@ -1,5 +1,6 @@
 // ==========================================
-// MANATON GAMES STATUS SYSTEM
+// MANATON GAMES STATUS
+// Dynamic Status System
 // ==========================================
 
 const STATUS_CONFIG = {
@@ -8,101 +9,51 @@ const STATUS_CONFIG = {
 
     refreshInterval: 30000,
 
-    defaultStatus: "operational"
+    statuses: {
 
-};
+        operational: {
+            label: "Operational",
+            className: "status-operational"
+        },
 
+        degraded: {
+            label: "Degraded Performance",
+            className: "status-degraded"
+        },
 
-// ==========================================
-// STATUS DEFINITIONS
-// ==========================================
+        partial_outage: {
+            label: "Partial Outage",
+            className: "status-partial-outage"
+        },
 
-const STATUS_DEFINITIONS = {
+        major_outage: {
+            label: "Major Outage",
+            className: "status-major-outage"
+        },
 
-    operational: {
-        label: "Operational",
-        className: "operational"
-    },
+        maintenance: {
+            label: "Maintenance",
+            className: "status-maintenance"
+        }
 
-    degraded: {
-        label: "Degraded Performance",
-        className: "degraded"
-    },
-
-    partial_outage: {
-        label: "Partial Outage",
-        className: "partial-outage"
-    },
-
-    major_outage: {
-        label: "Major Outage",
-        className: "major-outage"
-    },
-
-    maintenance: {
-        label: "Under Maintenance",
-        className: "maintenance"
     }
 
 };
 
 
 // ==========================================
-// INCIDENT DEFINITIONS
-// ==========================================
-
-const INCIDENT_STATUS_LABELS = {
-
-    investigating: "Investigating",
-
-    identified: "Identified",
-
-    monitoring: "Monitoring",
-
-    resolved: "Resolved"
-
-};
-
-
-// ==========================================
-// GLOBAL STATUS PRIORITY
-// ==========================================
-
-const GLOBAL_STATUS_PRIORITY = [
-
-    "major_outage",
-
-    "partial_outage",
-
-    "degraded",
-
-    "maintenance",
-
-    "operational"
-
-];
-
-
-// ==========================================
-// DOM READY
+// INITIALIZATION
 // ==========================================
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        updateStatus();
+        loadStatus();
 
         setInterval(
-            updateStatus,
+            loadStatus,
             STATUS_CONFIG.refreshInterval
-        );
-
-        updateLastUpdated();
-
-        setInterval(
-            updateLastUpdated,
-            1000
         );
 
     }
@@ -110,10 +61,10 @@ document.addEventListener(
 
 
 // ==========================================
-// FETCH STATUS
+// LOAD STATUS
 // ==========================================
 
-async function updateStatus() {
+async function loadStatus() {
 
     try {
 
@@ -121,15 +72,9 @@ async function updateStatus() {
             STATUS_CONFIG.apiUrl,
             {
                 method: "GET",
-
-                cache: "no-store",
-
-                headers: {
-                    "Accept": "application/json"
-                }
+                cache: "no-store"
             }
         );
-
 
         if (!response.ok) {
 
@@ -139,9 +84,7 @@ async function updateStatus() {
 
         }
 
-
-        const data =
-            await response.json();
+        const data = await response.json();
 
 
         if (!data.success) {
@@ -153,27 +96,20 @@ async function updateStatus() {
         }
 
 
-        // ==================================
-        // UPDATE SERVICES
-        // ==================================
-
         updateServices(
             data.services || []
         );
 
 
-        // ==================================
-        // UPDATE EXPERIENCES
-        // ==================================
-
-        updateServices(
+        updateExperiences(
             data.experiences || []
         );
 
 
-        // ==================================
-        // UPDATE GLOBAL STATUS
-        // ==================================
+        updateIncidents(
+            data.incidents || []
+        );
+
 
         updateGlobalStatus(
             data.services || [],
@@ -181,21 +117,7 @@ async function updateStatus() {
         );
 
 
-        // ==================================
-        // UPDATE INCIDENTS
-        // ==================================
-
-        updateIncidents(
-            data.incidents || []
-        );
-
-
-        // ==================================
-        // LAST UPDATED
-        // ==================================
-
-        window.lastStatusUpdate =
-            new Date();
+        updateLastUpdated();
 
 
     } catch (error) {
@@ -214,70 +136,120 @@ async function updateStatus() {
 // UPDATE SERVICES
 // ==========================================
 
-function updateServices(items) {
+function updateServices(services) {
 
-    items.forEach(item => {
+    services.forEach(
+        (service) => {
 
-        const element =
-            document.querySelector(
-                `[data-service-id="${item.id}"]`
+            const element =
+                document.querySelector(
+                    `[data-service-id="${service.id}"]`
+                );
+
+            if (!element) {
+                return;
+            }
+
+            updateStatusElement(
+                element,
+                service.status
             );
 
-
-        if (!element) {
-
-            return;
-
         }
-
-
-        const status =
-            item.status ||
-            STATUS_CONFIG.defaultStatus;
-
-
-        const definition =
-            STATUS_DEFINITIONS[status] ||
-            STATUS_DEFINITIONS.operational;
-
-
-        // ----------------------------------
-        // SERVICE STATUS CONTAINER
-        // ----------------------------------
-
-        const statusElement =
-            element.querySelector(
-                ".service-status"
-            );
-
-
-        if (statusElement) {
-
-            statusElement.className =
-                `service-status ${definition.className}`;
-
-
-            statusElement.innerHTML = `
-
-                <span
-                    class="status-dot ${definition.className}"
-                ></span>
-
-                <span>
-                    ${definition.label}
-                </span>
-
-            `;
-
-        }
-
-    });
+    );
 
 }
 
 
 // ==========================================
-// UPDATE GLOBAL STATUS
+// UPDATE EXPERIENCES
+// ==========================================
+
+function updateExperiences(experiences) {
+
+    experiences.forEach(
+        (experience) => {
+
+            const element =
+                document.querySelector(
+                    `[data-service-id="${experience.id}"]`
+                );
+
+            if (!element) {
+                return;
+            }
+
+            updateStatusElement(
+                element,
+                experience.status
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// UPDATE STATUS ELEMENT
+// ==========================================
+
+function updateStatusElement(
+    element,
+    status
+) {
+
+    const statusInfo =
+        STATUS_CONFIG.statuses[status] ||
+        STATUS_CONFIG.statuses.operational;
+
+
+    const statusText =
+        element.querySelector(
+            ".status-text"
+        );
+
+
+    const statusIndicator =
+        element.querySelector(
+            ".status-indicator"
+        );
+
+
+    if (statusText) {
+
+        statusText.textContent =
+            statusInfo.label;
+
+    }
+
+
+    if (statusIndicator) {
+
+        statusIndicator.className =
+            `status-indicator ${statusInfo.className}`;
+
+    }
+
+
+    element.classList.remove(
+        "status-operational",
+        "status-degraded",
+        "status-partial-outage",
+        "status-major-outage",
+        "status-maintenance"
+    );
+
+
+    element.classList.add(
+        statusInfo.className
+    );
+
+}
+
+
+// ==========================================
+// GLOBAL STATUS
 // ==========================================
 
 function updateGlobalStatus(
@@ -286,88 +258,74 @@ function updateGlobalStatus(
 ) {
 
     const allItems = [
-
         ...services,
-
         ...experiences
-
     ];
 
 
-    let globalStatus =
+    const priority = {
+
+        major_outage: 5,
+        partial_outage: 4,
+        degraded: 3,
+        maintenance: 2,
+        operational: 1
+
+    };
+
+
+    let highestStatus =
         "operational";
 
 
-    for (
-        const priorityStatus
-        of GLOBAL_STATUS_PRIORITY
-    ) {
+    allItems.forEach(
+        (item) => {
 
-        const hasStatus =
-            allItems.some(
-                item =>
-                    item.status === priorityStatus
-            );
+            if (
+                (priority[item.status] || 1) >
+                (priority[highestStatus] || 1)
+            ) {
 
+                highestStatus =
+                    item.status;
 
-        if (hasStatus) {
-
-            globalStatus =
-                priorityStatus;
-
-            break;
+            }
 
         }
+    );
+
+
+    const statusInfo =
+        STATUS_CONFIG.statuses[
+            highestStatus
+        ];
+
+
+    const globalStatus =
+        document.querySelector(
+            "#global-status"
+        );
+
+
+    const globalText =
+        document.querySelector(
+            "#global-status-text"
+        );
+
+
+    if (globalStatus) {
+
+        globalStatus.className =
+            `global-status ${statusInfo.className}`;
 
     }
 
 
-    const definition =
-        STATUS_DEFINITIONS[globalStatus] ||
-        STATUS_DEFINITIONS.operational;
+    if (globalText) {
 
-
-    const indicator =
-        document.querySelector(
-            ".global-status .status-indicator"
-        );
-
-
-    const title =
-        document.querySelector(
-            ".global-status h1"
-        );
-
-
-    const description =
-        document.querySelector(
-            ".global-status p"
-        );
-
-
-    if (indicator) {
-
-        indicator.className =
-            `status-indicator ${definition.className}`;
-
-    }
-
-
-    if (title) {
-
-        title.textContent =
-            getGlobalStatusTitle(
-                globalStatus
-            );
-
-    }
-
-
-    if (description) {
-
-        description.textContent =
-            getGlobalStatusDescription(
-                globalStatus
+        globalText.textContent =
+            getGlobalStatusMessage(
+                highestStatus
             );
 
     }
@@ -376,36 +334,34 @@ function updateGlobalStatus(
 
 
 // ==========================================
-// GLOBAL STATUS TITLE
+// GLOBAL STATUS MESSAGE
 // ==========================================
 
-function getGlobalStatusTitle(status) {
+function getGlobalStatusMessage(
+    status
+) {
 
     switch (status) {
 
         case "major_outage":
 
-            return "Major System Outage";
-
+            return "Major systems are experiencing outages.";
 
         case "partial_outage":
 
-            return "Partial System Outage";
-
+            return "Some systems are experiencing outages.";
 
         case "degraded":
 
-            return "Some Systems Experiencing Issues";
-
+            return "Some systems are experiencing degraded performance.";
 
         case "maintenance":
 
-            return "Some Systems Under Maintenance";
-
+            return "Some systems are currently under maintenance.";
 
         default:
 
-            return "All Systems Operational";
+            return "All systems operational.";
 
     }
 
@@ -413,64 +369,21 @@ function getGlobalStatusTitle(status) {
 
 
 // ==========================================
-// GLOBAL STATUS DESCRIPTION
-// ==========================================
-
-function getGlobalStatusDescription(status) {
-
-    switch (status) {
-
-        case "major_outage":
-
-            return "Major problems are currently affecting Manaton Games services.";
-
-
-        case "partial_outage":
-
-            return "Some Manaton Games services are currently experiencing outages.";
-
-
-        case "degraded":
-
-            return "Some Manaton Games services are experiencing degraded performance.";
-
-
-        case "maintenance":
-
-            return "Some Manaton Games services are currently undergoing maintenance.";
-
-
-        default:
-
-            return "All Manaton Games services are operating normally.";
-
-    }
-
-}
-
-
-// ==========================================
-// UPDATE INCIDENTS
+// INCIDENTS
 // ==========================================
 
 function updateIncidents(incidents) {
 
     const container =
-        document.getElementById(
-            "incidents-container"
+        document.querySelector(
+            "#incidents-container"
         );
 
 
     if (!container) {
-
         return;
-
     }
 
-
-    // --------------------------------------
-    // NO INCIDENTS
-    // --------------------------------------
 
     if (!incidents.length) {
 
@@ -499,46 +412,73 @@ function updateIncidents(incidents) {
         `;
 
         return;
-
     }
 
 
-    // --------------------------------------
-    // INCIDENTS
-    // --------------------------------------
-
     container.innerHTML =
         incidents
-            .map(
-                incident =>
-                    createIncidentHTML(
-                        incident
-                    )
-            )
+            .map(createIncidentHTML)
             .join("");
 
 }
 
 
 // ==========================================
-// CREATE INCIDENT HTML
+// CREATE INCIDENT
 // ==========================================
 
-function createIncidentHTML(incident) {
+function createIncidentHTML(
+    incident
+) {
 
     const status =
-        incident.status ||
-        "investigating";
-
-
-    const statusLabel =
-        INCIDENT_STATUS_LABELS[status] ||
-        "Investigating";
+        incident.status || "investigating";
 
 
     const impact =
-        incident.impact ||
-        "minor";
+        incident.impact || "minor";
+
+
+    const statusLabels = {
+
+        investigating: "Investigating",
+
+        identified: "Identified",
+
+        monitoring: "Monitoring",
+
+        resolved: "Resolved"
+
+    };
+
+
+    const statusIcons = {
+
+        investigating: "!",
+
+        identified: "🔧",
+
+        monitoring: "👁",
+
+        resolved: "✓"
+
+    };
+
+
+    const statusLabel =
+        statusLabels[status] ||
+        "Investigating";
+
+
+    const icon =
+        statusIcons[status] ||
+        "!";
+
+
+    const updates =
+        Array.isArray(incident.updates)
+            ? incident.updates
+            : [];
 
 
     const startedAt =
@@ -555,9 +495,9 @@ function createIncidentHTML(incident) {
             : null;
 
 
-    const impactLabel =
-        capitalizeFirstLetter(
-            impact
+    const updatesHTML =
+        createIncidentUpdatesHTML(
+            updates
         );
 
 
@@ -565,40 +505,58 @@ function createIncidentHTML(incident) {
 
         <article
             class="incident-card"
-            data-incident-id="${incident.id}"
         >
 
-            <div class="incident-card-header">
+            <div
+                class="incident-card-header"
+            >
 
-                <div class="incident-card-title">
+                <div
+                    class="incident-card-title"
+                >
 
-                    <div class="incident-icon incident-status-${status}">
-                        ${getIncidentIcon(status)}
+                    <div
+                        class="
+                            incident-icon
+                            incident-status-${escapeHTML(status)}
+                        "
+                    >
+                        ${icon}
                     </div>
 
                     <div>
 
                         <h3>
                             ${escapeHTML(
-                                incident.title
+                                incident.title ||
+                                "Incident"
                             )}
                         </h3>
 
-                        <span
-                            class="incident-status-label incident-status-${status}"
+                        <div
+                            class="
+                                incident-status-label
+                                incident-status-${escapeHTML(status)}
+                            "
                         >
                             ${statusLabel}
-                        </span>
+                        </div>
 
                     </div>
 
                 </div>
 
-                <span
-                    class="incident-impact incident-impact-${impact}"
+
+                <div
+                    class="
+                        incident-impact
+                        incident-impact-${escapeHTML(impact)}
+                    "
                 >
-                    ${impactLabel}
-                </span>
+                    ${escapeHTML(
+                        impact
+                    )}
+                </div>
 
             </div>
 
@@ -606,27 +564,36 @@ function createIncidentHTML(incident) {
             ${
                 incident.description
                     ? `
-                        <p class="incident-description">
+                        <div
+                            class="incident-description"
+                        >
                             ${escapeHTML(
                                 incident.description
                             )}
-                        </p>
+                        </div>
                     `
                     : ""
             }
 
 
-            <div class="incident-meta">
+            ${updatesHTML}
+
+
+            <div
+                class="incident-meta"
+            >
 
                 <span>
-                    Started: ${startedAt}
+                    Started:
+                    ${startedAt}
                 </span>
 
                 ${
                     resolvedAt
                         ? `
                             <span>
-                                Resolved: ${resolvedAt}
+                                Resolved:
+                                ${resolvedAt}
                             </span>
                         `
                         : ""
@@ -642,33 +609,151 @@ function createIncidentHTML(incident) {
 
 
 // ==========================================
-// INCIDENT ICON
+// INCIDENT UPDATES
 // ==========================================
 
-function getIncidentIcon(status) {
+function createIncidentUpdatesHTML(
+    updates
+) {
 
-    switch (status) {
+    if (!updates.length) {
 
-        case "resolved":
-
-            return "✓";
-
-
-        case "monitoring":
-
-            return "👁";
-
-
-        case "identified":
-
-            return "🔧";
-
-
-        default:
-
-            return "!";
+        return "";
 
     }
+
+
+    return `
+
+        <div
+            class="incident-updates"
+        >
+
+            <div
+                class="incident-updates-title"
+            >
+                Updates
+            </div>
+
+
+            <div
+                class="incident-timeline"
+            >
+
+                ${updates
+                    .map(
+                        createIncidentUpdateHTML
+                    )
+                    .join("")
+                }
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================
+// CREATE INCIDENT UPDATE
+// ==========================================
+
+function createIncidentUpdateHTML(
+    update
+) {
+
+    const status =
+        update.status ||
+        "investigating";
+
+
+    const statusLabels = {
+
+        investigating: "Investigating",
+
+        identified: "Identified",
+
+        monitoring: "Monitoring",
+
+        resolved: "Resolved"
+
+    };
+
+
+    const statusIcons = {
+
+        investigating: "!",
+
+        identified: "🔧",
+
+        monitoring: "👁",
+
+        resolved: "✓"
+
+    };
+
+
+    const label =
+        statusLabels[status] ||
+        "Update";
+
+
+    const icon =
+        statusIcons[status] ||
+        "•";
+
+
+    return `
+
+        <div
+            class="
+                incident-update
+                incident-update-${escapeHTML(status)}
+            "
+        >
+
+            <div
+                class="incident-update-marker"
+            >
+                ${icon}
+            </div>
+
+
+            <div
+                class="incident-update-content"
+            >
+
+                <div
+                    class="incident-update-header"
+                >
+
+                    <strong>
+                        ${label}
+                    </strong>
+
+                    <time>
+                        ${formatDate(
+                            update.created_at
+                        )}
+                    </time>
+
+                </div>
+
+
+                <p>
+                    ${escapeHTML(
+                        update.message ||
+                        ""
+                    )}
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
 
 }
 
@@ -677,34 +762,38 @@ function getIncidentIcon(status) {
 // DATE FORMAT
 // ==========================================
 
-function formatDate(dateString) {
+function formatDate(
+    date
+) {
 
-    if (!dateString) {
-
-        return "Unknown";
-
-    }
-
-
-    const date =
-        new Date(dateString);
-
-
-    if (Number.isNaN(
-        date.getTime()
-    )) {
+    if (!date) {
 
         return "Unknown";
 
     }
 
 
-    return date.toLocaleString(
+    const parsedDate =
+        new Date(date);
+
+
+    if (
+        Number.isNaN(
+            parsedDate.getTime()
+        )
+    ) {
+
+        return "Unknown";
+
+    }
+
+
+    return parsedDate.toLocaleString(
         "en-US",
         {
-            year: "numeric",
             month: "short",
             day: "numeric",
+            year: "numeric",
             hour: "numeric",
             minute: "2-digit"
         }
@@ -714,41 +803,34 @@ function formatDate(dateString) {
 
 
 // ==========================================
-// HTML ESCAPE
+// ESCAPE HTML
 // ==========================================
 
-function escapeHTML(value) {
+function escapeHTML(
+    value
+) {
 
     return String(value)
-
-        .replaceAll("&", "&amp;")
-
-        .replaceAll("<", "&lt;")
-
-        .replaceAll(">", "&gt;")
-
-        .replaceAll('"', "&quot;")
-
-        .replaceAll("'", "&#039;");
-
-}
-
-
-// ==========================================
-// CAPITALIZE
-// ==========================================
-
-function capitalizeFirstLetter(value) {
-
-    if (!value) {
-
-        return "";
-
-    }
-
-
-    return value.charAt(0).toUpperCase()
-        + value.slice(1);
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
@@ -760,58 +842,28 @@ function capitalizeFirstLetter(value) {
 function updateLastUpdated() {
 
     const element =
-        document.getElementById(
-            "last-updated"
+        document.querySelector(
+            "#last-updated"
         );
 
 
     if (!element) {
-
         return;
-
     }
 
 
-    if (!window.lastStatusUpdate) {
-
-        element.textContent =
-            "Just now";
-
-        return;
-
-    }
+    const now =
+        new Date();
 
 
-    const seconds =
-        Math.floor(
-            (
-                Date.now()
-                - window.lastStatusUpdate.getTime()
-            ) / 1000
-        );
-
-
-    if (seconds < 5) {
-
-        element.textContent =
-            "Just now";
-
-    } else if (seconds < 60) {
-
-        element.textContent =
-            `${seconds} seconds ago`;
-
-    } else {
-
-        const minutes =
-            Math.floor(
-                seconds / 60
-            );
-
-
-        element.textContent =
-            `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-
-    }
+    element.textContent =
+        `Last updated: ${now.toLocaleTimeString(
+            "en-US",
+            {
+                hour: "numeric",
+                minute: "2-digit",
+                second: "2-digit"
+            }
+        )}`;
 
 }
