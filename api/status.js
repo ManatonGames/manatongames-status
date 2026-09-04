@@ -5,23 +5,9 @@
 
 import { neon } from "@neondatabase/serverless";
 
-
-// ==========================================
-// DATABASE CONNECTION
-// ==========================================
-
 const sql = neon(process.env.DATABASE_URL);
 
-
-// ==========================================
-// API HANDLER
-// ==========================================
-
 export default async function handler(req, res) {
-
-    // --------------------------------------
-    // CORS
-    // --------------------------------------
 
     res.setHeader(
         "Access-Control-Allow-Origin",
@@ -38,39 +24,23 @@ export default async function handler(req, res) {
         "Content-Type"
     );
 
-
-    // --------------------------------------
-    // SECURITY
-    // --------------------------------------
-
     res.setHeader(
         "X-Robots-Tag",
         "noindex, nofollow"
     );
 
-
-    // --------------------------------------
-    // METHOD CHECK
-    // --------------------------------------
-
     if (req.method !== "GET") {
-
         return res.status(405).json({
-
             success: false,
-
             error: "Method not allowed"
-
         });
-
     }
-
 
     try {
 
-        // ==================================
+        // ==========================================
         // SERVICES
-        // ==================================
+        // ==========================================
 
         const services = await sql`
             SELECT
@@ -86,9 +56,9 @@ export default async function handler(req, res) {
         `;
 
 
-        // ==================================
-        // ROBLOX EXPERIENCES
-        // ==================================
+        // ==========================================
+        // EXPERIENCES
+        // ==========================================
 
         const experiences = await sql`
             SELECT
@@ -104,9 +74,9 @@ export default async function handler(req, res) {
         `;
 
 
-        // ==================================
+        // ==========================================
         // INCIDENTS
-        // ==================================
+        // ==========================================
 
         const incidents = await sql`
             SELECT
@@ -126,30 +96,56 @@ export default async function handler(req, res) {
         `;
 
 
-        // ==================================
+        // ==========================================
+        // INCIDENT UPDATES
+        // ==========================================
+
+        const incidentUpdates = await sql`
+            SELECT
+                id,
+                incident_id,
+                message,
+                status,
+                created_at
+            FROM incident_updates
+            ORDER BY created_at ASC
+        `;
+
+
+        // ==========================================
+        // ATTACH UPDATES TO INCIDENTS
+        // ==========================================
+
+        const incidentsWithUpdates = incidents.map(
+            (incident) => {
+
+                const updates = incidentUpdates.filter(
+                    (update) =>
+                        String(update.incident_id) ===
+                        String(incident.id)
+                );
+
+                return {
+                    ...incident,
+                    updates
+                };
+            }
+        );
+
+
+        // ==========================================
         // RESPONSE
-        // ==================================
+        // ==========================================
 
         return res.status(200).json({
-
             success: true,
-
-            updatedAt:
-                new Date().toISOString(),
-
+            updatedAt: new Date().toISOString(),
             services,
-
             experiences,
-
-            incidents
-
+            incidents: incidentsWithUpdates
         });
 
     } catch (error) {
-
-        // ==================================
-        // ERROR
-        // ==================================
 
         console.error(
             "[STATUS API ERROR]",
@@ -157,13 +153,8 @@ export default async function handler(req, res) {
         );
 
         return res.status(500).json({
-
             success: false,
-
             error: "Unable to retrieve status information."
-
         });
-
     }
-
 }
