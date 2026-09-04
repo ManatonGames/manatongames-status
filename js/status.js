@@ -387,23 +387,59 @@ function updateIncidents(incidents) {
 
     if (!incidents.length) {
 
-        container.innerHTML = `
+        container.innerHTML = createNoIncidentsHTML();
 
-            <div class="no-incidents">
+        return;
+    }
 
-                <div class="incident-icon">
-                    ✓
+
+    // ==========================================
+    // SEPARATE ACTIVE AND RESOLVED INCIDENTS
+    // ==========================================
+
+    const activeIncidents =
+        incidents.filter(
+            (incident) =>
+                incident.status !== "resolved"
+        );
+
+
+    const resolvedIncidents =
+        incidents.filter(
+            (incident) =>
+                incident.status === "resolved"
+        );
+
+
+    let html = "";
+
+
+    // ==========================================
+    // ACTIVE INCIDENTS
+    // ==========================================
+
+    if (activeIncidents.length) {
+
+        html += `
+
+            <div
+                class="incident-group"
+            >
+
+                <div
+                    class="incident-group-title"
+                >
+                    Active Incidents
                 </div>
 
-                <div>
+                <div
+                    class="incident-group-container"
+                >
 
-                    <strong>
-                        No incidents reported
-                    </strong>
-
-                    <p>
-                        There have been no incidents recently.
-                    </p>
+                    ${activeIncidents
+                        .map(createIncidentHTML)
+                        .join("")
+                    }
 
                 </div>
 
@@ -411,14 +447,94 @@ function updateIncidents(incidents) {
 
         `;
 
-        return;
     }
 
 
-    container.innerHTML =
-        incidents
-            .map(createIncidentHTML)
-            .join("");
+    // ==========================================
+    // INCIDENT HISTORY
+    // ==========================================
+
+    if (resolvedIncidents.length) {
+
+        html += `
+
+            <div
+                class="
+                    incident-group
+                    incident-history
+                "
+            >
+
+                <div
+                    class="incident-group-title"
+                >
+                    Incident History
+                </div>
+
+                <div
+                    class="incident-group-container"
+                >
+
+                    ${resolvedIncidents
+                        .map(createIncidentHTML)
+                        .join("")
+                    }
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ==========================================
+    // FALLBACK
+    // ==========================================
+
+    if (!html) {
+
+        html =
+            createNoIncidentsHTML();
+
+    }
+
+
+    container.innerHTML = html;
+
+}
+
+
+// ==========================================
+// NO INCIDENTS
+// ==========================================
+
+function createNoIncidentsHTML() {
+
+    return `
+
+        <div class="no-incidents">
+
+            <div class="incident-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <strong>
+                    No incidents reported
+                </strong>
+
+                <p>
+                    There have been no incidents recently.
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
 
 }
 
