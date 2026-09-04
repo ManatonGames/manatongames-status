@@ -1,6 +1,7 @@
 // ==========================================
 // MANATON GAMES AUTOMATIC MONITOR
 // Neon Database + Vercel
+// Services + Roblox Experiences
 // ==========================================
 
 import { neon } from "@neondatabase/serverless";
@@ -9,21 +10,50 @@ const sql = neon(process.env.DATABASE_URL);
 
 
 // ==========================================
-// MONITOR TARGETS
+// SERVICE TARGETS
 // ==========================================
 
-const MONITOR_TARGETS = [
+const SERVICE_TARGETS = [
+
     {
-        type: "service",
         id: "website",
         url: "https://manatongames-status.vercel.app/"
     },
 
     {
-        type: "service",
         id: "api",
         url: "https://manatongames-status.vercel.app/api/status"
     }
+
+];
+
+
+// ==========================================
+// ROBLOX EXPERIENCE TARGETS
+// ==========================================
+
+const ROBLOX_EXPERIENCES = [
+
+    {
+        id: "mg-ranks-shopping-center",
+        universeId: "9249765776"
+    },
+
+    {
+        id: "speed-escape",
+        universeId: "10272519491"
+    },
+
+    {
+        id: "pls-donate",
+        universeId: "7243686590"
+    },
+
+    {
+        id: "roblox-universe",
+        universeId: "10619956273"
+    }
+
 ];
 
 
@@ -68,11 +98,11 @@ export default async function handler(req, res) {
 
 
     // ==========================================
-    // CHECK EACH TARGET
+    // CHECK SERVICES
     // ==========================================
 
     for (
-        const target of MONITOR_TARGETS
+        const target of SERVICE_TARGETS
     ) {
 
         const startTime =
@@ -124,7 +154,7 @@ export default async function handler(req, res) {
         } catch (error) {
 
             console.error(
-                `[MONITOR ERROR] ${target.id}`,
+                `[SERVICE MONITOR ERROR] ${target.id}`,
                 error
             );
 
@@ -135,7 +165,7 @@ export default async function handler(req, res) {
 
 
         // ==========================================
-        // SAVE CHECK
+        // SAVE SERVICE CHECK
         // ==========================================
 
         try {
@@ -156,7 +186,7 @@ export default async function handler(req, res) {
         } catch (error) {
 
             console.error(
-                `[DATABASE ERROR] ${target.id}`,
+                `[SERVICE DATABASE ERROR] ${target.id}`,
                 error
             );
 
@@ -164,10 +194,150 @@ export default async function handler(req, res) {
 
 
         results.push({
-            type: target.type,
+
+            type: "service",
+
             id: target.id,
+
             status,
+
             responseTime
+
+        });
+
+    }
+
+
+    // ==========================================
+    // CHECK ROBLOX EXPERIENCES
+    // ==========================================
+
+    for (
+        const experience
+        of ROBLOX_EXPERIENCES
+    ) {
+
+        const startTime =
+            Date.now();
+
+
+        let status =
+            "down";
+
+
+        let responseTime =
+            null;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `https://games.roblox.com/v1/games?universeIds=${experience.universeId}`,
+                    {
+                        method: "GET",
+                        cache: "no-store"
+                    }
+                );
+
+
+            responseTime =
+                Date.now() -
+                startTime;
+
+
+            if (
+                response.ok
+            ) {
+
+                const data =
+                    await response.json();
+
+
+                const game =
+                    data &&
+                    Array.isArray(data.data)
+                        ? data.data[0]
+                        : null;
+
+
+                if (game) {
+
+                    status =
+                        responseTime > 1000
+                            ? "degraded"
+                            : "operational";
+
+                } else {
+
+                    status =
+                        "down";
+
+                }
+
+            } else {
+
+                status =
+                    "down";
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                `[ROBLOX MONITOR ERROR] ${experience.id}`,
+                error
+            );
+
+            status =
+                "down";
+
+        }
+
+
+        // ==========================================
+        // SAVE ROBLOX CHECK
+        // ==========================================
+
+        try {
+
+            await sql`
+                INSERT INTO monitor_checks (
+                    experience_id,
+                    status,
+                    response_time_ms
+                )
+                VALUES (
+                    ${experience.id},
+                    ${status},
+                    ${responseTime}
+                )
+            `;
+
+        } catch (error) {
+
+            console.error(
+                `[ROBLOX DATABASE ERROR] ${experience.id}`,
+                error
+            );
+
+        }
+
+
+        results.push({
+
+            type: "experience",
+
+            id: experience.id,
+
+            universeId:
+                experience.universeId,
+
+            status,
+
+            responseTime
+
         });
 
     }
