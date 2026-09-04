@@ -1822,3 +1822,172 @@ body {
     }
 
 }
+
+/* ==========================================
+   UPTIME GRAPH
+   ========================================== */
+
+.uptime-graph-section {
+    margin-top: 24px;
+}
+
+.uptime-period {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.uptime-container {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.uptime-loading {
+    padding: 20px;
+
+    text-align: center;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    background: var(--card);
+}
+
+
+/* ==========================================
+   UPTIME ITEM
+   ========================================== */
+
+.uptime-item {
+    padding: 18px;
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+}
+
+.uptime-item-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 12px;
+}
+
+.uptime-item-name {
+    color: var(--text-primary);
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.uptime-item-stats {
+    display: flex;
+
+    gap: 12px;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+}
+
+
+/* ==========================================
+   UPTIME BAR
+   ========================================== */
+
+.uptime-bar {
+    display: flex;
+
+    width: 100%;
+    height: 18px;
+
+    gap: 2px;
+
+    overflow: hidden;
+
+    border-radius: 5px;
+
+    background: var(--background);
+}
+
+.uptime-segment {
+    flex: 1;
+
+    min-width: 3px;
+
+    border-radius: 2px;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.uptime-segment:hover {
+    opacity: 0.75;
+
+    transform: scaleY(1.15);
+}
+
+
+/* ==========================================
+   SEGMENT STATES
+   ========================================== */
+
+.uptime-segment-operational {
+    background: var(--green);
+}
+
+.uptime-segment-degraded {
+    background: var(--yellow);
+}
+
+.uptime-segment-down {
+    background: var(--red);
+}
+
+.uptime-segment-no-data {
+    background: var(--border);
+}
+
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 600px) {
+
+    .uptime-item {
+        padding: 15px;
+    }
+
+    .uptime-item-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 6px;
+    }
+
+    .uptime-item-stats {
+        gap: 8px;
+
+        font-size: 10px;
+    }
+
+    .uptime-bar {
+        height: 16px;
+
+        gap: 1px;
+    }
+
+}
