@@ -145,6 +145,7 @@ const monitorChecks = await sql`
         response_time_ms,
         checked_at
     FROM monitor_checks
+    WHERE checked_at >= NOW() - INTERVAL '24 hours'
     ORDER BY checked_at DESC
 `;
 
