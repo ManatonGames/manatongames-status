@@ -875,6 +875,301 @@ function createIncidentUpdateHTML(
 
 
 // ==========================================
+// UPTIME GRAPH
+// ==========================================
+
+function updateUptime(
+    monitorChecks,
+    services,
+    experiences
+) {
+
+    const container =
+        document.querySelector(
+            "#uptime-container"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const items = [
+        ...services.map(service => ({
+            id: service.id,
+            name: service.name,
+            type: "service"
+        })),
+
+        ...experiences.map(experience => ({
+            id: experience.id,
+            name: experience.name,
+            type: "experience"
+        }))
+    ];
+
+
+    const monitoredItems =
+        items.filter(item =>
+            monitorChecks.some(check =>
+                check.service_id === item.id ||
+                check.experience_id === item.id
+            )
+        );
+
+
+    if (!monitoredItems.length) {
+
+        container.innerHTML = `
+            <div class="uptime-loading">
+                No uptime data available.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        monitoredItems
+            .map(item =>
+                createUptimeItem(
+                    item,
+                    monitorChecks
+                )
+            )
+            .join("");
+
+}
+
+
+// ==========================================
+// CREATE UPTIME ITEM
+// ==========================================
+
+function createUptimeItem(
+    item,
+    monitorChecks
+) {
+
+    const checks =
+        monitorChecks.filter(check => {
+
+            if (item.type === "service") {
+
+                return check.service_id === item.id;
+
+            }
+
+            return check.experience_id === item.id;
+
+        });
+
+
+    if (!checks.length) {
+        return "";
+    }
+
+
+    const segments =
+        checks
+            .slice()
+            .sort(
+                (a, b) =>
+                    new Date(a.checked_at) -
+                    new Date(b.checked_at)
+            )
+            .map(check => {
+
+                let className =
+                    "uptime-segment-no-data";
+
+                if (
+                    check.status ===
+                    "operational"
+                ) {
+
+                    className =
+                        "uptime-segment-operational";
+
+                }
+
+                else if (
+                    check.status ===
+                    "degraded"
+                ) {
+
+                    className =
+                        "uptime-segment-degraded";
+
+                }
+
+                else if (
+                    check.status ===
+                    "down"
+                ) {
+
+                    className =
+                        "uptime-segment-down";
+
+                }
+
+
+                return `
+                    <div
+                        class="
+                            uptime-segment
+                            ${className}
+                        "
+                        title="${escapeHTML(
+                            getUptimeTooltip(check)
+                        )}"
+                    ></div>
+                `;
+
+            })
+            .join("");
+
+
+    const operationalChecks =
+        checks.filter(
+            check =>
+                check.status ===
+                "operational"
+        ).length;
+
+
+    const uptimePercentage =
+        checks.length > 0
+            ? (
+                operationalChecks /
+                checks.length *
+                100
+            ).toFixed(2)
+            : "0.00";
+
+
+    const responseTimes =
+        checks
+            .map(
+                check =>
+                    Number(
+                        check.response_time_ms
+                    )
+            )
+            .filter(
+                value =>
+                    Number.isFinite(value)
+            );
+
+
+    const averageResponse =
+        responseTimes.length
+            ? Math.round(
+                responseTimes.reduce(
+                    (sum, value) =>
+                        sum + value,
+                    0
+                ) /
+                responseTimes.length
+            )
+            : null;
+
+
+    return `
+
+        <div
+            class="uptime-item"
+        >
+
+            <div
+                class="uptime-item-header"
+            >
+
+                <div
+                    class="uptime-item-name"
+                >
+                    ${escapeHTML(
+                        item.name
+                    )}
+                </div>
+
+                <div
+                    class="uptime-item-stats"
+                >
+
+                    <span>
+                        ${uptimePercentage}% uptime
+                    </span>
+
+                    ${
+                        averageResponse !== null
+                            ? `
+                                <span>
+                                    ${averageResponse} ms avg
+                                </span>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="uptime-bar"
+            >
+                ${segments}
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================
+// UPTIME TOOLTIP
+// ==========================================
+
+function getUptimeTooltip(
+    check
+) {
+
+    const statusLabels = {
+
+        operational: "Operational",
+
+        degraded: "Degraded",
+
+        down: "Down"
+
+    };
+
+
+    const status =
+        statusLabels[
+            check.status
+        ] || "Unknown";
+
+
+    const response =
+        check.response_time_ms !== null &&
+        check.response_time_ms !== undefined
+            ? `${check.response_time_ms} ms`
+            : "No response time";
+
+
+    return `${status} • ${response} • ${formatDate(
+        check.checked_at
+    )}`;
+
+}
+
+
+// ==========================================
 // DATE FORMAT
 // ==========================================
 
