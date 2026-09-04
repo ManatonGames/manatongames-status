@@ -1555,3 +1555,270 @@ body {
     }
 
 }
+
+/* ==========================================
+   INCIDENT UPDATES
+   ========================================== */
+
+.incident-updates {
+    margin-top: 22px;
+    margin-left: 52px;
+}
+
+.incident-updates-title {
+    margin-bottom: 14px;
+
+    color: var(--text-primary);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+}
+
+.incident-timeline {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 0;
+
+    padding-left: 20px;
+}
+
+/* Línea vertical */
+
+.incident-timeline::before {
+    content: "";
+
+    position: absolute;
+
+    top: 6px;
+    bottom: 6px;
+    left: 5px;
+
+    width: 1px;
+
+    background: var(--border);
+}
+
+
+/* ==========================================
+   INDIVIDUAL UPDATE
+   ========================================== */
+
+.incident-update {
+    position: relative;
+
+    display: flex;
+
+    gap: 14px;
+
+    padding-bottom: 18px;
+}
+
+.incident-update:last-child {
+    padding-bottom: 0;
+}
+
+
+/* ==========================================
+   UPDATE MARKER
+   ========================================== */
+
+.incident-update-marker {
+    position: absolute;
+
+    left: -20px;
+    top: 0;
+
+    width: 12px;
+    height: 12px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--card);
+
+    border: 2px solid var(--yellow);
+
+    color: var(--yellow);
+
+    font-size: 0;
+
+    z-index: 2;
+}
+
+
+/* Investigating */
+
+.incident-update-investigating
+    .incident-update-marker {
+
+    border-color: var(--yellow);
+
+    background: var(--card);
+}
+
+
+/* Identified */
+
+.incident-update-identified
+    .incident-update-marker {
+
+    border-color: var(--orange);
+
+    background: var(--card);
+}
+
+
+/* Monitoring */
+
+.incident-update-monitoring
+    .incident-update-marker {
+
+    border-color: var(--blue);
+
+    background: var(--card);
+}
+
+
+/* Resolved */
+
+.incident-update-resolved
+    .incident-update-marker {
+
+    border-color: var(--green);
+
+    background: var(--card);
+}
+
+
+/* ==========================================
+   UPDATE CONTENT
+   ========================================== */
+
+.incident-update-content {
+    width: 100%;
+    min-width: 0;
+}
+
+.incident-update-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 5px;
+}
+
+.incident-update-header strong {
+    color: var(--text-primary);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.incident-update-header time {
+    flex-shrink: 0;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+}
+
+.incident-update-content p {
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* ==========================================
+   UPDATE STATUS COLORS
+   ========================================== */
+
+.incident-update-investigating
+    .incident-update-header strong {
+
+    color: var(--yellow);
+}
+
+.incident-update-identified
+    .incident-update-header strong {
+
+    color: var(--orange);
+}
+
+.incident-update-monitoring
+    .incident-update-header strong {
+
+    color: var(--blue);
+}
+
+.incident-update-resolved
+    .incident-update-header strong {
+
+    color: var(--green);
+}
+
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 600px) {
+
+    .incident-updates {
+        margin-left: 45px;
+    }
+
+    .incident-timeline {
+        padding-left: 18px;
+    }
+
+    .incident-update-marker {
+        left: -18px;
+    }
+
+    .incident-update-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 3px;
+    }
+
+    .incident-update-header time {
+        font-size: 10px;
+    }
+
+    .incident-update-content p {
+        font-size: 12px;
+    }
+
+}
+
+
+@media (max-width: 420px) {
+
+    .incident-updates {
+        margin-left: 0;
+    }
+
+    .incident-timeline {
+        padding-left: 18px;
+    }
+
+}
