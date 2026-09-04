@@ -1,41 +1,38 @@
 // ==========================================
 // MANATON GAMES STATUS
-// Dynamic Status System
+// Frontend Status System
 // ==========================================
 
 const STATUS_CONFIG = {
 
-    apiUrl: "/api/status",
+    operational: {
+        label: "Operational",
+        className: "status-operational",
+        icon: "✓"
+    },
 
-    refreshInterval: 30000,
+    degraded: {
+        label: "Degraded Performance",
+        className: "status-degraded",
+        icon: "!"
+    },
 
-    statuses: {
+    partial_outage: {
+        label: "Partial Outage",
+        className: "status-partial-outage",
+        icon: "!"
+    },
 
-        operational: {
-            label: "Operational",
-            className: "status-operational"
-        },
+    major_outage: {
+        label: "Major Outage",
+        className: "status-major-outage",
+        icon: "×"
+    },
 
-        degraded: {
-            label: "Degraded Performance",
-            className: "status-degraded"
-        },
-
-        partial_outage: {
-            label: "Partial Outage",
-            className: "status-partial-outage"
-        },
-
-        major_outage: {
-            label: "Major Outage",
-            className: "status-major-outage"
-        },
-
-        maintenance: {
-            label: "Maintenance",
-            className: "status-maintenance"
-        }
-
+    maintenance: {
+        label: "Maintenance",
+        className: "status-maintenance",
+        icon: "⚙"
     }
 
 };
@@ -51,9 +48,10 @@ document.addEventListener(
 
         loadStatus();
 
+        // Refresh status every 30 seconds
         setInterval(
             loadStatus,
-            STATUS_CONFIG.refreshInterval
+            30000
         );
 
     }
@@ -69,7 +67,7 @@ async function loadStatus() {
     try {
 
         const response = await fetch(
-            STATUS_CONFIG.apiUrl,
+            "/api/status",
             {
                 method: "GET",
                 cache: "no-store"
@@ -86,30 +84,57 @@ async function loadStatus() {
 
         const data = await response.json();
 
-
         if (!data.success) {
 
             throw new Error(
-                "API returned an unsuccessful response."
+                data.error ||
+                "Unable to load status."
             );
 
         }
 
+
+        // ==========================================
+        // SERVICES
+        // ==========================================
 
         updateServices(
             data.services || []
         );
 
 
+        // ==========================================
+        // EXPERIENCES
+        // ==========================================
+
         updateExperiences(
             data.experiences || []
         );
 
 
+        // ==========================================
+        // INCIDENTS
+        // ==========================================
+
         updateIncidents(
             data.incidents || []
         );
 
+
+        // ==========================================
+        // UPTIME
+        // ==========================================
+
+        updateUptime(
+            data.monitorChecks || [],
+            data.services || [],
+            data.experiences || []
+        );
+
+
+        // ==========================================
+        // GLOBAL STATUS
+        // ==========================================
 
         updateGlobalStatus(
             data.services || [],
@@ -117,7 +142,13 @@ async function loadStatus() {
         );
 
 
-        updateLastUpdated();
+        // ==========================================
+        // LAST UPDATED
+        // ==========================================
+
+        updateLastUpdated(
+            data.updatedAt
+        );
 
 
     } catch (error) {
@@ -136,10 +167,17 @@ async function loadStatus() {
 // UPDATE SERVICES
 // ==========================================
 
-function updateServices(services) {
+function updateServices(
+    services
+) {
+
+    if (!Array.isArray(services)) {
+        return;
+    }
+
 
     services.forEach(
-        (service) => {
+        service => {
 
             const element =
                 document.querySelector(
@@ -149,6 +187,7 @@ function updateServices(services) {
             if (!element) {
                 return;
             }
+
 
             updateStatusElement(
                 element,
@@ -165,19 +204,27 @@ function updateServices(services) {
 // UPDATE EXPERIENCES
 // ==========================================
 
-function updateExperiences(experiences) {
+function updateExperiences(
+    experiences
+) {
+
+    if (!Array.isArray(experiences)) {
+        return;
+    }
+
 
     experiences.forEach(
-        (experience) => {
+        experience => {
 
             const element =
                 document.querySelector(
-                    `[data-service-id="${experience.id}"]`
+                    `[data-experience-id="${experience.id}"]`
                 );
 
             if (!element) {
                 return;
             }
+
 
             updateStatusElement(
                 element,
@@ -199,10 +246,39 @@ function updateStatusElement(
     status
 ) {
 
-    const statusInfo =
-        STATUS_CONFIG.statuses[status] ||
-        STATUS_CONFIG.statuses.operational;
+    if (!element) {
+        return;
+    }
 
+
+    const config =
+        STATUS_CONFIG[status] ||
+        STATUS_CONFIG.operational;
+
+
+    // Remove previous status classes
+
+    Object.values(
+        STATUS_CONFIG
+    ).forEach(
+        statusConfig => {
+
+            element.classList.remove(
+                statusConfig.className
+            );
+
+        }
+    );
+
+
+    // Add current status class
+
+    element.classList.add(
+        config.className
+    );
+
+
+    // Find status text
 
     const statusText =
         element.querySelector(
@@ -210,46 +286,34 @@ function updateStatusElement(
         );
 
 
-    const statusIndicator =
-        element.querySelector(
-            ".status-indicator"
-        );
-
-
     if (statusText) {
 
         statusText.textContent =
-            statusInfo.label;
+            config.label;
 
     }
 
 
-    if (statusIndicator) {
+    // Find status icon
 
-        statusIndicator.className =
-            `status-indicator ${statusInfo.className}`;
+    const statusIcon =
+        element.querySelector(
+            ".status-icon"
+        );
+
+
+    if (statusIcon) {
+
+        statusIcon.textContent =
+            config.icon;
 
     }
-
-
-    element.classList.remove(
-        "status-operational",
-        "status-degraded",
-        "status-partial-outage",
-        "status-major-outage",
-        "status-maintenance"
-    );
-
-
-    element.classList.add(
-        statusInfo.className
-    );
 
 }
 
 
 // ==========================================
-// GLOBAL STATUS
+// UPDATE GLOBAL STATUS
 // ==========================================
 
 function updateGlobalStatus(
@@ -257,76 +321,147 @@ function updateGlobalStatus(
     experiences
 ) {
 
-    const allItems = [
-        ...services,
-        ...experiences
-    ];
-
-
-    const priority = {
-
-        major_outage: 5,
-        partial_outage: 4,
-        degraded: 3,
-        maintenance: 2,
-        operational: 1
-
-    };
-
-
-    let highestStatus =
-        "operational";
-
-
-    allItems.forEach(
-        (item) => {
-
-            if (
-                (priority[item.status] || 1) >
-                (priority[highestStatus] || 1)
-            ) {
-
-                highestStatus =
-                    item.status;
-
-            }
-
-        }
-    );
-
-
-    const statusInfo =
-        STATUS_CONFIG.statuses[
-            highestStatus
-        ];
-
-
     const globalStatus =
         document.querySelector(
             "#global-status"
         );
 
 
-    const globalText =
-        document.querySelector(
-            "#global-status-text"
+    if (!globalStatus) {
+        return;
+    }
+
+
+    const allItems = [
+        ...(services || []),
+        ...(experiences || [])
+    ];
+
+
+    if (
+        allItems.length === 0
+    ) {
+        return;
+    }
+
+
+    const statuses =
+        allItems.map(
+            item => item.status
         );
 
 
-    if (globalStatus) {
+    let currentStatus =
+        "operational";
 
-        globalStatus.className =
-            `global-status ${statusInfo.className}`;
+
+    if (
+        statuses.includes(
+            "major_outage"
+        )
+    ) {
+
+        currentStatus =
+            "major_outage";
+
+    } else if (
+        statuses.includes(
+            "partial_outage"
+        )
+    ) {
+
+        currentStatus =
+            "partial_outage";
+
+    } else if (
+        statuses.includes(
+            "degraded"
+        )
+    ) {
+
+        currentStatus =
+            "degraded";
+
+    } else if (
+        statuses.includes(
+            "maintenance"
+        )
+    ) {
+
+        currentStatus =
+            "maintenance";
 
     }
 
 
-    if (globalText) {
+    const config =
+        STATUS_CONFIG[currentStatus];
 
-        globalText.textContent =
-            getGlobalStatusMessage(
-                highestStatus
+
+    // Remove global status classes
+
+    Object.values(
+        STATUS_CONFIG
+    ).forEach(
+        statusConfig => {
+
+            globalStatus.classList.remove(
+                statusConfig.className
             );
+
+        }
+    );
+
+
+    globalStatus.classList.add(
+        config.className
+    );
+
+
+    const message =
+        getGlobalStatusMessage(
+            currentStatus
+        );
+
+
+    const statusTitle =
+        globalStatus.querySelector(
+            ".global-status-title"
+        );
+
+
+    const statusDescription =
+        globalStatus.querySelector(
+            ".global-status-description"
+        );
+
+
+    if (statusTitle) {
+
+        statusTitle.textContent =
+            message.title;
+
+    }
+
+
+    if (statusDescription) {
+
+        statusDescription.textContent =
+            message.description;
+
+    }
+
+
+    const icon =
+        globalStatus.querySelector(
+            ".global-status-icon"
+        );
+
+
+    if (icon) {
+
+        icon.textContent =
+            config.icon;
 
     }
 
@@ -345,23 +480,47 @@ function getGlobalStatusMessage(
 
         case "major_outage":
 
-            return "Major systems are experiencing outages.";
+            return {
+                title: "Major System Outage",
+                description:
+                    "Major issues are currently affecting Manaton Games services."
+            };
+
 
         case "partial_outage":
 
-            return "Some systems are experiencing outages.";
+            return {
+                title: "Partial System Outage",
+                description:
+                    "Some Manaton Games services are currently experiencing issues."
+            };
+
 
         case "degraded":
 
-            return "Some systems are experiencing degraded performance.";
+            return {
+                title: "Degraded Performance",
+                description:
+                    "Some Manaton Games services are experiencing degraded performance."
+            };
+
 
         case "maintenance":
 
-            return "Some systems are currently under maintenance.";
+            return {
+                title: "System Maintenance",
+                description:
+                    "Some Manaton Games services are currently undergoing maintenance."
+            };
+
 
         default:
 
-            return "All systems operational.";
+            return {
+                title: "All Systems Operational",
+                description:
+                    "All Manaton Games services are operating normally."
+            };
 
     }
 
@@ -369,10 +528,12 @@ function getGlobalStatusMessage(
 
 
 // ==========================================
-// INCIDENTS
+// INCIDENT SYSTEM
 // ==========================================
 
-function updateIncidents(incidents) {
+function updateIncidents(
+    incidents
+) {
 
     const container =
         document.querySelector(
@@ -385,29 +546,32 @@ function updateIncidents(incidents) {
     }
 
 
-    if (!incidents.length) {
+    if (
+        !Array.isArray(incidents) ||
+        incidents.length === 0
+    ) {
 
-        container.innerHTML = createNoIncidentsHTML();
+        container.innerHTML =
+            createNoIncidentsHTML();
 
         return;
+
     }
 
 
-    // ==========================================
-    // SEPARATE ACTIVE AND RESOLVED INCIDENTS
-    // ==========================================
-
     const activeIncidents =
         incidents.filter(
-            (incident) =>
-                incident.status !== "resolved"
+            incident =>
+                incident.status !==
+                "resolved"
         );
 
 
     const resolvedIncidents =
         incidents.filter(
-            (incident) =>
-                incident.status === "resolved"
+            incident =>
+                incident.status ===
+                "resolved"
         );
 
 
@@ -418,33 +582,31 @@ function updateIncidents(incidents) {
     // ACTIVE INCIDENTS
     // ==========================================
 
-    if (activeIncidents.length) {
+    if (
+        activeIncidents.length > 0
+    ) {
 
         html += `
+            <div class="incident-group">
 
-            <div
-                class="incident-group"
-            >
-
-                <div
-                    class="incident-group-title"
-                >
+                <div class="incident-group-title">
                     Active Incidents
                 </div>
 
-                <div
-                    class="incident-group-container"
-                >
+                <div class="incident-group-container">
 
                     ${activeIncidents
-                        .map(createIncidentHTML)
-                        .join("")
-                    }
+                        .map(
+                            incident =>
+                                createIncidentHTML(
+                                    incident
+                                )
+                        )
+                        .join("")}
 
                 </div>
 
             </div>
-
         `;
 
     }
@@ -454,54 +616,39 @@ function updateIncidents(incidents) {
     // INCIDENT HISTORY
     // ==========================================
 
-    if (resolvedIncidents.length) {
+    if (
+        resolvedIncidents.length > 0
+    ) {
 
         html += `
+            <div class="incident-group incident-history">
 
-            <div
-                class="
-                    incident-group
-                    incident-history
-                "
-            >
-
-                <div
-                    class="incident-group-title"
-                >
+                <div class="incident-group-title">
                     Incident History
                 </div>
 
-                <div
-                    class="incident-group-container"
-                >
+                <div class="incident-group-container">
 
                     ${resolvedIncidents
-                        .map(createIncidentHTML)
-                        .join("")
-                    }
+                        .map(
+                            incident =>
+                                createIncidentHTML(
+                                    incident
+                                )
+                        )
+                        .join("")}
 
                 </div>
 
             </div>
-
         `;
 
     }
 
 
-    // ==========================================
-    // FALLBACK
-    // ==========================================
-
-    if (!html) {
-
-        html =
-            createNoIncidentsHTML();
-
-    }
-
-
-    container.innerHTML = html;
+    container.innerHTML =
+        html ||
+        createNoIncidentsHTML();
 
 }
 
@@ -513,7 +660,6 @@ function updateIncidents(incidents) {
 function createNoIncidentsHTML() {
 
     return `
-
         <div class="no-incidents">
 
             <div class="incident-icon">
@@ -533,7 +679,6 @@ function createNoIncidentsHTML() {
             </div>
 
         </div>
-
     `;
 
 }
@@ -548,96 +693,47 @@ function createIncidentHTML(
 ) {
 
     const status =
-        incident.status || "investigating";
+        incident.status ||
+        "investigating";
 
 
     const impact =
-        incident.impact || "minor";
+        incident.impact ||
+        "minor";
 
 
-    const statusLabels = {
-
-        investigating: "Investigating",
-
-        identified: "Identified",
-
-        monitoring: "Monitoring",
-
-        resolved: "Resolved"
-
-    };
+    const config =
+        getIncidentStatusConfig(
+            status
+        );
 
 
-    const statusIcons = {
-
-        investigating: "!",
-
-        identified: "🔧",
-
-        monitoring: "👁",
-
-        resolved: "✓"
-
-    };
-
-
-    const statusLabel =
-        statusLabels[status] ||
-        "Investigating";
-
-
-    const icon =
-        statusIcons[status] ||
-        "!";
+    const target =
+        getIncidentTarget(
+            incident
+        );
 
 
     const updates =
-        Array.isArray(incident.updates)
+        Array.isArray(
+            incident.updates
+        )
             ? incident.updates
             : [];
 
 
-    const startedAt =
-        formatDate(
-            incident.started_at
-        );
-
-
-    const resolvedAt =
-        incident.resolved_at
-            ? formatDate(
-                incident.resolved_at
-            )
-            : null;
-
-
-    const updatesHTML =
-        createIncidentUpdatesHTML(
-            updates
-        );
-
-
     return `
+        <article class="incident-card">
 
-        <article
-            class="incident-card"
-        >
+            <div class="incident-card-header">
 
-            <div
-                class="incident-card-header"
-            >
+                <div class="incident-card-title">
 
-                <div
-                    class="incident-card-title"
-                >
-
-                    <div
-                        class="
-                            incident-icon
-                            incident-status-${escapeHTML(status)}
-                        "
-                    >
-                        ${icon}
+                    <div class="
+                        incident-icon
+                        incident-status-${escapeHTML(status)}
+                    ">
+                        ${config.icon}
                     </div>
 
                     <div>
@@ -649,26 +745,22 @@ function createIncidentHTML(
                             )}
                         </h3>
 
-                        <div
-                            class="
-                                incident-status-label
-                                incident-status-${escapeHTML(status)}
-                            "
-                        >
-                            ${statusLabel}
-                        </div>
+                        <span class="
+                            incident-status-label
+                            incident-status-${escapeHTML(status)}
+                        ">
+                            ${config.label}
+                        </span>
 
                     </div>
 
                 </div>
 
 
-                <div
-                    class="
-                        incident-impact
-                        incident-impact-${escapeHTML(impact)}
-                    "
-                >
+                <div class="
+                    incident-impact
+                    incident-impact-${escapeHTML(impact)}
+                ">
                     ${escapeHTML(
                         impact
                     )}
@@ -680,9 +772,7 @@ function createIncidentHTML(
             ${
                 incident.description
                     ? `
-                        <div
-                            class="incident-description"
-                        >
+                        <div class="incident-description">
                             ${escapeHTML(
                                 incident.description
                             )}
@@ -692,24 +782,39 @@ function createIncidentHTML(
             }
 
 
-            ${updatesHTML}
-
-
-            <div
-                class="incident-meta"
-            >
-
-                <span>
-                    Started:
-                    ${startedAt}
-                </span>
+            <div class="incident-meta">
 
                 ${
-                    resolvedAt
+                    target
+                        ? `
+                            <span>
+                                ${escapeHTML(target)}
+                            </span>
+                        `
+                        : ""
+                }
+
+                ${
+                    incident.started_at
+                        ? `
+                            <span>
+                                Started:
+                                ${formatDate(
+                                    incident.started_at
+                                )}
+                            </span>
+                        `
+                        : ""
+                }
+
+                ${
+                    incident.resolved_at
                         ? `
                             <span>
                                 Resolved:
-                                ${resolvedAt}
+                                ${formatDate(
+                                    incident.resolved_at
+                                )}
                             </span>
                         `
                         : ""
@@ -717,9 +822,96 @@ function createIncidentHTML(
 
             </div>
 
-        </article>
 
+            ${
+                updates.length > 0
+                    ? createIncidentUpdatesHTML(
+                        updates
+                    )
+                    : ""
+            }
+
+        </article>
     `;
+
+}
+
+
+// ==========================================
+// INCIDENT STATUS CONFIG
+// ==========================================
+
+function getIncidentStatusConfig(
+    status
+) {
+
+    switch (status) {
+
+        case "identified":
+
+            return {
+                label: "Identified",
+                icon: "!"
+            };
+
+
+        case "monitoring":
+
+            return {
+                label: "Monitoring",
+                icon: "◉"
+            };
+
+
+        case "resolved":
+
+            return {
+                label: "Resolved",
+                icon: "✓"
+            };
+
+
+        case "investigating":
+
+        default:
+
+            return {
+                label: "Investigating",
+                icon: "!"
+            };
+
+    }
+
+}
+
+
+// ==========================================
+// INCIDENT TARGET
+// ==========================================
+
+function getIncidentTarget(
+    incident
+) {
+
+    if (
+        incident.service_id
+    ) {
+
+        return `Service: ${incident.service_id}`;
+
+    }
+
+
+    if (
+        incident.experience_id
+    ) {
+
+        return `Experience: ${incident.experience_id}`;
+
+    }
+
+
+    return "";
 
 }
 
@@ -732,7 +924,10 @@ function createIncidentUpdatesHTML(
     updates
 ) {
 
-    if (!updates.length) {
+    if (
+        !Array.isArray(updates) ||
+        updates.length === 0
+    ) {
 
         return "";
 
@@ -740,33 +935,26 @@ function createIncidentUpdatesHTML(
 
 
     return `
+        <div class="incident-updates">
 
-        <div
-            class="incident-updates"
-        >
-
-            <div
-                class="incident-updates-title"
-            >
+            <div class="incident-updates-title">
                 Updates
             </div>
 
-
-            <div
-                class="incident-timeline"
-            >
+            <div class="incident-timeline">
 
                 ${updates
                     .map(
-                        createIncidentUpdateHTML
+                        update =>
+                            createIncidentUpdateHTML(
+                                update
+                            )
                     )
-                    .join("")
-                }
+                    .join("")}
 
             </div>
 
         </div>
-
     `;
 
 }
@@ -785,68 +973,31 @@ function createIncidentUpdateHTML(
         "investigating";
 
 
-    const statusLabels = {
-
-        investigating: "Investigating",
-
-        identified: "Identified",
-
-        monitoring: "Monitoring",
-
-        resolved: "Resolved"
-
-    };
-
-
-    const statusIcons = {
-
-        investigating: "!",
-
-        identified: "🔧",
-
-        monitoring: "👁",
-
-        resolved: "✓"
-
-    };
-
-
-    const label =
-        statusLabels[status] ||
-        "Update";
-
-
-    const icon =
-        statusIcons[status] ||
-        "•";
+    const config =
+        getIncidentStatusConfig(
+            status
+        );
 
 
     return `
+        <div class="
+            incident-update
+            incident-update-${escapeHTML(status)}
+        ">
 
-        <div
-            class="
-                incident-update
-                incident-update-${escapeHTML(status)}
-            "
-        >
-
-            <div
-                class="incident-update-marker"
-            >
-                ${icon}
+            <div class="
+                incident-update-marker
+            ">
+                ${config.icon}
             </div>
 
 
-            <div
-                class="incident-update-content"
-            >
+            <div class="incident-update-content">
 
-                <div
-                    class="incident-update-header"
-                >
+                <div class="incident-update-header">
 
                     <strong>
-                        ${label}
+                        ${config.label}
                     </strong>
 
                     <time>
@@ -868,14 +1019,13 @@ function createIncidentUpdateHTML(
             </div>
 
         </div>
-
     `;
 
 }
 
 
 // ==========================================
-// UPTIME GRAPH
+// UPTIME SYSTEM
 // ==========================================
 
 function updateUptime(
@@ -889,56 +1039,118 @@ function updateUptime(
             "#uptime-container"
         );
 
+
     if (!container) {
         return;
     }
 
 
-    const items = [
-        ...services.map(service => ({
-            id: service.id,
-            name: service.name,
-            type: "service"
-        })),
-
-        ...experiences.map(experience => ({
-            id: experience.id,
-            name: experience.name,
-            type: "experience"
-        }))
-    ];
-
-
-    const monitoredItems =
-        items.filter(item =>
-            monitorChecks.some(check =>
-                check.service_id === item.id ||
-                check.experience_id === item.id
-            )
-        );
-
-
-    if (!monitoredItems.length) {
+    if (
+        !Array.isArray(monitorChecks) ||
+        monitorChecks.length === 0
+    ) {
 
         container.innerHTML = `
             <div class="uptime-loading">
-                No uptime data available.
+                No uptime data available yet.
             </div>
         `;
 
         return;
+
+    }
+
+
+    const items = [];
+
+
+    // ==========================================
+    // SERVICES
+    // ==========================================
+
+    (services || []).forEach(
+        service => {
+
+            const checks =
+                monitorChecks.filter(
+                    check =>
+                        String(
+                            check.service_id
+                        ) === String(
+                            service.id
+                        )
+                );
+
+
+            if (
+                checks.length > 0
+            ) {
+
+                items.push(
+                    createUptimeItem(
+                        service.name,
+                        checks
+                    )
+                );
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // EXPERIENCES
+    // ==========================================
+
+    (experiences || []).forEach(
+        experience => {
+
+            const checks =
+                monitorChecks.filter(
+                    check =>
+                        String(
+                            check.experience_id
+                        ) === String(
+                            experience.id
+                        )
+                );
+
+
+            if (
+                checks.length > 0
+            ) {
+
+                items.push(
+                    createUptimeItem(
+                        experience.name,
+                        checks
+                    )
+                );
+
+            }
+
+        }
+    );
+
+
+    if (
+        items.length === 0
+    ) {
+
+        container.innerHTML = `
+            <div class="uptime-loading">
+                No uptime data available yet.
+            </div>
+        `;
+
+        return;
+
     }
 
 
     container.innerHTML =
-        monitoredItems
-            .map(item =>
-                createUptimeItem(
-                    item,
-                    monitorChecks
-                )
-            )
-            .join("");
+        items.join("");
 
 }
 
@@ -948,109 +1160,62 @@ function updateUptime(
 // ==========================================
 
 function createUptimeItem(
-    item,
-    monitorChecks
+    name,
+    checks
 ) {
 
-    const checks =
-        monitorChecks.filter(check => {
-
-            if (item.type === "service") {
-
-                return check.service_id === item.id;
-
-            }
-
-            return check.experience_id === item.id;
-
-        });
+    const sortedChecks =
+        [...checks].sort(
+            (a, b) =>
+                new Date(
+                    a.checked_at
+                ) -
+                new Date(
+                    b.checked_at
+                )
+        );
 
 
-    if (!checks.length) {
-        return "";
-    }
+    const total =
+        sortedChecks.length;
 
 
-    const segments =
-        checks
-            .slice()
-            .sort(
-                (a, b) =>
-                    new Date(a.checked_at) -
-                    new Date(b.checked_at)
-            )
-            .map(check => {
-
-                let className =
-                    "uptime-segment-no-data";
-
-                if (
-                    check.status ===
-                    "operational"
-                ) {
-
-                    className =
-                        "uptime-segment-operational";
-
-                }
-
-                else if (
-                    check.status ===
-                    "degraded"
-                ) {
-
-                    className =
-                        "uptime-segment-degraded";
-
-                }
-
-                else if (
-                    check.status ===
-                    "down"
-                ) {
-
-                    className =
-                        "uptime-segment-down";
-
-                }
-
-
-                return `
-                    <div
-                        class="
-                            uptime-segment
-                            ${className}
-                        "
-                        title="${escapeHTML(
-                            getUptimeTooltip(check)
-                        )}"
-                    ></div>
-                `;
-
-            })
-            .join("");
-
-
-    const operationalChecks =
-        checks.filter(
+    const operational =
+        sortedChecks.filter(
             check =>
                 check.status ===
                 "operational"
         ).length;
 
 
-    const uptimePercentage =
-        checks.length > 0
+    const degraded =
+        sortedChecks.filter(
+            check =>
+                check.status ===
+                "degraded"
+        ).length;
+
+
+    const down =
+        sortedChecks.filter(
+            check =>
+                check.status ===
+                "down"
+        ).length;
+
+
+    const uptime =
+        total > 0
             ? (
-                operationalChecks /
-                checks.length *
+                operational /
+                total *
                 100
             ).toFixed(2)
             : "0.00";
 
 
     const responseTimes =
-        checks
+        sortedChecks
             .map(
                 check =>
                     Number(
@@ -1059,12 +1224,14 @@ function createUptimeItem(
             )
             .filter(
                 value =>
-                    Number.isFinite(value)
+                    Number.isFinite(
+                        value
+                    )
             );
 
 
     const averageResponse =
-        responseTimes.length
+        responseTimes.length > 0
             ? Math.round(
                 responseTimes.reduce(
                     (sum, value) =>
@@ -1076,30 +1243,79 @@ function createUptimeItem(
             : null;
 
 
+    const segments =
+        sortedChecks
+            .map(
+                check => {
+
+                    let className =
+                        "uptime-segment-no-data";
+
+
+                    if (
+                        check.status ===
+                        "operational"
+                    ) {
+
+                        className =
+                            "uptime-segment-operational";
+
+                    } else if (
+                        check.status ===
+                        "degraded"
+                    ) {
+
+                        className =
+                            "uptime-segment-degraded";
+
+                    } else if (
+                        check.status ===
+                        "down"
+                    ) {
+
+                        className =
+                            "uptime-segment-down";
+
+                    }
+
+
+                    const tooltip =
+                        getUptimeTooltip(
+                            check
+                        );
+
+
+                    return `
+                        <div
+                            class="
+                                uptime-segment
+                                ${className}
+                            "
+                            title="${escapeHTML(
+                                tooltip
+                            )}"
+                        ></div>
+                    `;
+
+                }
+            )
+            .join("");
+
+
     return `
+        <div class="uptime-item">
 
-        <div
-            class="uptime-item"
-        >
+            <div class="uptime-item-header">
 
-            <div
-                class="uptime-item-header"
-            >
-
-                <div
-                    class="uptime-item-name"
-                >
-                    ${escapeHTML(
-                        item.name
-                    )}
+                <div class="uptime-item-name">
+                    ${escapeHTML(name)}
                 </div>
 
-                <div
-                    class="uptime-item-stats"
-                >
+
+                <div class="uptime-item-stats">
 
                     <span>
-                        ${uptimePercentage}% uptime
+                        ${uptime}% uptime
                     </span>
 
                     ${
@@ -1117,14 +1333,46 @@ function createUptimeItem(
             </div>
 
 
-            <div
-                class="uptime-bar"
-            >
+            <div class="uptime-bar">
+
                 ${segments}
+
+            </div>
+
+
+            <div class="uptime-item-stats">
+
+                <span>
+                    ${operational} operational
+                </span>
+
+                ${
+                    degraded > 0
+                        ? `
+                            <span>
+                                ${degraded} degraded
+                            </span>
+                        `
+                        : ""
+                }
+
+                ${
+                    down > 0
+                        ? `
+                            <span>
+                                ${down} down
+                            </span>
+                        `
+                        : ""
+                }
+
+                <span>
+                    ${total} checks
+                </span>
+
             </div>
 
         </div>
-
     `;
 
 }
@@ -1140,11 +1388,14 @@ function getUptimeTooltip(
 
     const statusLabels = {
 
-        operational: "Operational",
+        operational:
+            "Operational",
 
-        degraded: "Degraded",
+        degraded:
+            "Degraded",
 
-        down: "Down"
+        down:
+            "Down"
 
     };
 
@@ -1152,19 +1403,26 @@ function getUptimeTooltip(
     const status =
         statusLabels[
             check.status
-        ] || "Unknown";
+        ] ||
+        "No data";
+
+
+    const time =
+        check.checked_at
+            ? formatDate(
+                check.checked_at
+            )
+            : "Unknown time";
 
 
     const response =
         check.response_time_ms !== null &&
         check.response_time_ms !== undefined
             ? `${check.response_time_ms} ms`
-            : "No response time";
+            : "N/A";
 
 
-    return `${status} • ${response} • ${formatDate(
-        check.checked_at
-    )}`;
+    return `${status} • ${time} • ${response}`;
 
 }
 
@@ -1178,19 +1436,17 @@ function formatDate(
 ) {
 
     if (!date) {
-
         return "Unknown";
-
     }
 
 
-    const parsedDate =
+    const parsed =
         new Date(date);
 
 
     if (
         Number.isNaN(
-            parsedDate.getTime()
+            parsed.getTime()
         )
     ) {
 
@@ -1199,14 +1455,11 @@ function formatDate(
     }
 
 
-    return parsedDate.toLocaleString(
+    return parsed.toLocaleString(
         "en-US",
         {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "2-digit"
+            dateStyle: "medium",
+            timeStyle: "short"
         }
     );
 
@@ -1220,6 +1473,16 @@ function formatDate(
 function escapeHTML(
     value
 ) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
 
     return String(value)
         .replace(
@@ -1250,7 +1513,9 @@ function escapeHTML(
 // LAST UPDATED
 // ==========================================
 
-function updateLastUpdated() {
+function updateLastUpdated(
+    updatedAt
+) {
 
     const element =
         document.querySelector(
@@ -1263,18 +1528,19 @@ function updateLastUpdated() {
     }
 
 
-    const now =
-        new Date();
+    if (!updatedAt) {
+
+        element.textContent =
+            "Last updated: Unknown";
+
+        return;
+
+    }
 
 
     element.textContent =
-        `Last updated: ${now.toLocaleTimeString(
-            "en-US",
-            {
-                hour: "numeric",
-                minute: "2-digit",
-                second: "2-digit"
-            }
+        `Last updated: ${formatDate(
+            updatedAt
         )}`;
 
 }
