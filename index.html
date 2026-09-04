@@ -1,764 +1,533 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>
-        Manaton Games Status
-    </title>
+<title>
+    Manaton Games Status
+</title>
 
-    <meta
-        name="description"
-        content="Official system status page for Manaton Games."
-    >
+<meta
+    name="description"
+    content="Official system status page for Manaton Games."
+>
 
-    <meta
-        name="theme-color"
-        content="#0f172a"
-    >
+<meta
+    name="theme-color"
+    content="#0f172a"
+>
 
-    <link
-        rel="stylesheet"
-        href="css/style.css"
-    >
+<link
+    rel="stylesheet"
+    href="css/style.css"
+>
 
 </head>
 
-
 <body>
 
+<!-- ========================================== -->
+<!-- HEADER -->
+<!-- ========================================== -->
 
-    <!-- ========================================== -->
-    <!-- HEADER -->
-    <!-- ========================================== -->
+<header class="header">
 
-    <header class="header">
+    <div class="header-container">
 
-        <div class="header-container">
+        <div class="brand">
 
-
-            <!-- BRAND -->
-
-            <div class="brand">
-
-
-                <div class="brand-logo">
-
-                    MG
-
-                </div>
-
-
-                <div class="brand-text">
-
-                    <span class="brand-name">
-
-                        MANATON GAMES
-
-                    </span>
-
-
-                    <span class="brand-subtitle">
-
-                        System Status
-
-                    </span>
-
-                </div>
-
-
+            <div class="brand-logo">
+                MG
             </div>
 
+            <div class="brand-text">
+
+                <span class="brand-name">
+                    MANATON GAMES
+                </span>
+
+                <span class="brand-subtitle">
+                    System Status
+                </span>
+
+            </div>
 
         </div>
 
-    </header>
+    </div>
+
+</header>
 
 
 
-    <!-- ========================================== -->
-    <!-- MAIN -->
-    <!-- ========================================== -->
+<!-- ========================================== -->
+<!-- MAIN -->
+<!-- ========================================== -->
 
-    <main class="main-container">
-
-
-        <!-- ====================================== -->
-        <!-- GLOBAL STATUS -->
-        <!-- ====================================== -->
-
-        <section class="global-status">
+<main class="main-container">
 
 
-            <div
-                class="status-indicator operational"
-            >
+    <!-- ====================================== -->
+    <!-- GLOBAL STATUS -->
+    <!-- ====================================== -->
 
-            </div>
+    <section class="global-status">
 
+        <div
+            class="status-indicator operational"
+        ></div>
 
-            <div class="global-status-text">
+        <div class="global-status-text">
 
+            <h1>
+                All Systems Operational
+            </h1>
 
-                <h1>
+            <p>
+                All Manaton Games services are operating normally.
+            </p>
 
-                    All Systems Operational
+            <div class="last-updated">
 
-                </h1>
+                Last updated:
 
-
-                <p>
-
-                    All Manaton Games services are operating normally.
-
-                </p>
-
-                <div class="last-updated">
-
-    Last updated:
-    <span id="last-updated">
-        Just now
-    </span>
-
-</div>
-
+                <span id="last-updated">
+                    Just now
+                </span>
 
             </div>
 
-            
+        </div>
 
+    </section>
 
-        </section>
 
 
+    <!-- ====================================== -->
+    <!-- MANATON GAMES SERVICES -->
+    <!-- ====================================== -->
 
-        <!-- ====================================== -->
-        <!-- MANATON GAMES SERVICES -->
-        <!-- ====================================== -->
+    <section class="status-section">
 
-        <section class="status-section">
-
-
-            <div class="section-header">
-
-
-                <h2>
-
-                    Manaton Games Services
-
-                </h2>
-
-
-            </div>
-
-
-
-            <!-- ================================== -->
-            <!-- WEBSITE -->
-            <!-- ================================== -->
-
-            <div
-                class="service"
-                data-service-id="website"
-            >
-
-
-                <div class="service-info">
-
-
-                    <div class="service-name">
-
-                        Website
-
-                    </div>
-
-
-                    <div class="service-description">
-
-                        Main Manaton Games website
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div
-                    class="service-status operational"
-                >
-
-
-                    <span
-                        class="status-dot operational"
-                    >
-
-                    </span>
-
-
-                    <span>
-
-                        Operational
-
-                    </span>
-
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- ================================== -->
-            <!-- API -->
-            <!-- ================================== -->
-
-            <div
-                class="service"
-                data-service-id="api"
-            >
-
-
-                <div class="service-info">
-
-
-                    <div class="service-name">
-
-                        Manaton Games API
-
-                    </div>
-
-
-                    <div class="service-description">
-
-                        Backend and API services
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div
-                    class="service-status operational"
-                >
-
-
-                    <span
-                        class="status-dot operational"
-                    >
-
-                    </span>
-
-
-                    <span>
-
-                        Operational
-
-                    </span>
-
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- ================================== -->
-            <!-- AUTHENTICATION -->
-            <!-- ================================== -->
-
-            <div
-                class="service"
-                data-service-id="authentication"
-            >
-
-
-                <div class="service-info">
-
-
-                    <div class="service-name">
-
-                        Authentication
-
-                    </div>
-
-
-                    <div class="service-description">
-
-                        Account login and authentication services
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div
-                    class="service-status operational"
-                >
-
-
-                    <span
-                        class="status-dot operational"
-                    >
-
-                    </span>
-
-
-                    <span>
-
-                        Operational
-
-                    </span>
-
-
-                </div>
-
-
-            </div>
-
-
-        </section>
-
-
-
-        <!-- ====================================== -->
-        <!-- ROBLOX EXPERIENCES -->
-        <!-- ====================================== -->
-
-        <section class="status-section">
-
-
-            <div class="section-header">
-
-
-                <h2>
-
-                    Roblox Experiences
-
-                </h2>
-
-
-            </div>
-
-
-             <!-- ================================== -->
-            <!-- ROBLOX UNIVERSE -->
-            <!-- ================================== -->
-
-            <div
-                class="service"
-                data-service-id="roblox-universe"
-            >
-
-
-                <div class="service-info">
-
-
-                    <div class="service-name">
-
-                        Roblox Universe
-
-                    </div>
-
-
-                    <div class="service-description">
-
-                        Roblox experience
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div
-                    class="service-status operational"
-                >
-
-
-                    <span
-                        class="status-dot operational"
-                    >
-
-                    </span>
-
-
-                    <span>
-
-                        Operational
-
-                    </span>
-
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- ================================== -->
-            <!-- GROW A GARDEN MODDED -->
-            <!-- ================================== -->
-
-            <div
-                class="service"
-                data-service-id="grow-a-garden-modded"
-            >
-
-
-                <div class="service-info">
-
-
-                    <div class="service-name">
-
-                        Grow a Garden Modded
-
-                    </div>
-
-
-                    <div class="service-description">
-
-                        Roblox experience
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div
-                    class="service-status operational"
-                >
-
-
-                    <span
-                        class="status-dot operational"
-                    >
-
-                    </span>
-
-
-                    <span>
-
-                        Operational
-
-                    </span>
-
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- ================================== -->
-            <!-- +1 SPEED ESCAPE -->
-            <!-- ================================== -->
-
-            <div
-                class="service"
-                data-service-id="speed-escape"
-            >
-
-
-                <div class="service-info">
-
-
-                    <div class="service-name">
-
-                        +1 Speed Escape
-
-                    </div>
-
-
-                    <div class="service-description">
-
-                        Roblox experience
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div
-                    class="service-status operational"
-                >
-
-
-                    <span
-                        class="status-dot operational"
-                    >
-
-                    </span>
-
-
-                    <span>
-
-                        Operational
-
-                    </span>
-
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- ================================== -->
-            <!-- PLS DONATE -->
-            <!-- ================================== -->
-
-            <div
-                class="service"
-                data-service-id="pls-donate"
-            >
-
-
-                <div class="service-info">
-
-
-                    <div class="service-name">
-
-                        PLS DONATE
-
-                    </div>
-
-
-                    <div class="service-description">
-
-                        Roblox experience
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div
-                    class="service-status operational"
-                >
-
-
-                    <span
-                        class="status-dot operational"
-                    >
-
-                    </span>
-
-
-                    <span>
-
-                        Operational
-
-                    </span>
-
-
-                </div>
-
-
-            </div>
-
-
-        </section>
-
-
-
-        <!-- ====================================== -->
-<!-- SYSTEM UPTIME -->
-<!-- ====================================== -->
-
-<section class="uptime-section">
-
-
-    <div class="uptime-header">
-
-
-        <div>
+        <div class="section-header">
 
             <h2>
-                System Uptime
+                Manaton Games Services
             </h2>
 
+        </div>
+
+
+        <!-- WEBSITE -->
+
+        <div
+            class="service"
+            data-service-id="website"
+        >
+
+            <div class="service-info">
+
+                <div class="service-name">
+                    Website
+                </div>
+
+                <div class="service-description">
+                    Main Manaton Games website
+                </div>
+
+            </div>
+
+            <div class="service-status operational">
+
+                <span
+                    class="status-dot operational"
+                ></span>
+
+                <span>
+                    Operational
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- API -->
+
+        <div
+            class="service"
+            data-service-id="api"
+        >
+
+            <div class="service-info">
+
+                <div class="service-name">
+                    Manaton Games API
+                </div>
+
+                <div class="service-description">
+                    Backend and API services
+                </div>
+
+            </div>
+
+            <div class="service-status operational">
+
+                <span
+                    class="status-dot operational"
+                ></span>
+
+                <span>
+                    Operational
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- AUTHENTICATION -->
+
+        <div
+            class="service"
+            data-service-id="authentication"
+        >
+
+            <div class="service-info">
+
+                <div class="service-name">
+                    Authentication
+                </div>
+
+                <div class="service-description">
+                    Account login and authentication services
+                </div>
+
+            </div>
+
+            <div class="service-status operational">
+
+                <span
+                    class="status-dot operational"
+                ></span>
+
+                <span>
+                    Operational
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ====================================== -->
+    <!-- ROBLOX EXPERIENCES -->
+    <!-- ====================================== -->
+
+    <section class="status-section">
+
+        <div class="section-header">
+
+            <h2>
+                Roblox Experiences
+            </h2>
+
+        </div>
+
+
+        <!-- ROBLOX UNIVERSE -->
+
+        <div
+            class="service"
+            data-service-id="roblox-universe"
+        >
+
+            <div class="service-info">
+
+                <div class="service-name">
+                    Roblox Universe
+                </div>
+
+                <div class="service-description">
+                    Roblox experience
+                </div>
+
+            </div>
+
+            <div class="service-status operational">
+
+                <span
+                    class="status-dot operational"
+                ></span>
+
+                <span>
+                    Operational
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- GROW A GARDEN MODDED -->
+
+        <div
+            class="service"
+            data-service-id="grow-a-garden-modded"
+        >
+
+            <div class="service-info">
+
+                <div class="service-name">
+                    Grow a Garden Modded
+                </div>
+
+                <div class="service-description">
+                    Roblox experience
+                </div>
+
+            </div>
+
+            <div class="service-status operational">
+
+                <span
+                    class="status-dot operational"
+                ></span>
+
+                <span>
+                    Operational
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- +1 SPEED ESCAPE -->
+
+        <div
+            class="service"
+            data-service-id="speed-escape"
+        >
+
+            <div class="service-info">
+
+                <div class="service-name">
+                    +1 Speed Escape
+                </div>
+
+                <div class="service-description">
+                    Roblox experience
+                </div>
+
+            </div>
+
+            <div class="service-status operational">
+
+                <span
+                    class="status-dot operational"
+                ></span>
+
+                <span>
+                    Operational
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PLS DONATE -->
+
+        <div
+            class="service"
+            data-service-id="pls-donate"
+        >
+
+            <div class="service-info">
+
+                <div class="service-name">
+                    PLS DONATE
+                </div>
+
+                <div class="service-description">
+                    Roblox experience
+                </div>
+
+            </div>
+
+            <div class="service-status operational">
+
+                <span
+                    class="status-dot operational"
+                ></span>
+
+                <span>
+                    Operational
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ====================================== -->
+    <!-- SYSTEM UPTIME -->
+    <!-- ====================================== -->
+
+    <section class="uptime-section">
+
+        <div class="uptime-header">
+
+            <div>
+
+                <h2>
+                    System Uptime
+                </h2>
+
+                <span>
+                    Last 90 days
+                </span>
+
+            </div>
+
+            <div class="uptime-percentage">
+                99.99%
+            </div>
+
+        </div>
+
+
+        <div
+            class="uptime-bar"
+            aria-label="99.99% system uptime"
+        >
+
+            <div
+                class="uptime-fill"
+                style="width: 99.99%;"
+            ></div>
+
+        </div>
+
+
+        <div class="uptime-footer">
+
             <span>
-                Last 90 days
+                99.99% uptime
+            </span>
+
+            <span>
+                Excellent
             </span>
 
         </div>
 
-
-        <div class="uptime-percentage">
-
-            99.99%
-
-        </div>
-
-
-    </div>
+    </section>
 
 
 
-    <!-- UPTIME BAR -->
+    <!-- ====================================== -->
+    <!-- INCIDENTS -->
+    <!-- ====================================== -->
 
-    <div
-        class="uptime-bar"
-        aria-label="99.99% system uptime"
+    <section
+        class="status-section incidents-section"
     >
 
-        <div
-            class="uptime-fill"
-            style="width: 99.99%;"
-        >
+        <div class="section-header">
+
+            <h2>
+                Incidents
+            </h2>
 
         </div>
 
-    </div>
 
+        <!--
+            JavaScript will automatically replace
+            this content with incidents received
+            from Neon.
+        -->
 
-
-    <!-- UPTIME FOOTER -->
-
-    <div class="uptime-footer">
-
-
-        <span>
-
-            99.99% uptime
-
-        </span>
-
-
-        <span>
-
-            Excellent
-
-        </span>
-
-
-    </div>
-
-
-</section>
-
-
-        <!-- ====================================== -->
-        <!-- PAST INCIDENTS -->
-        <!-- ====================================== -->
-
-        <section
-            class="status-section incidents-section"
+        <div
+            id="incidents-container"
+            class="incidents-container"
         >
-
-
-            <div class="section-header">
-
-
-                <h2>
-
-                    Past Incidents
-
-                </h2>
-
-
-            </div>
-
-
 
             <div class="no-incidents">
 
-
                 <div class="incident-icon">
-
                     ✓
-
                 </div>
-
-
 
                 <div>
 
-
                     <strong>
-
                         No incidents reported
-
                     </strong>
 
-
                     <p>
-
                         There have been no incidents recently.
-
                     </p>
-
 
                 </div>
 
-
             </div>
 
+        </div>
 
-        </section>
-
-
-    </main>
+    </section>
 
 
-
-    <!-- ========================================== -->
-    <!-- FOOTER -->
-    <!-- ========================================== -->
-
-    <footer class="footer">
-
-
-        <p>
-
-            Manaton Games © 2026
-
-        </p>
-
-
-        <p>
-
-            System Status
-
-        </p>
-
-
-    </footer>
+</main>
 
 
 
-    <!-- ========================================== -->
-    <!-- JAVASCRIPT -->
-    <!-- ========================================== -->
+<!-- ========================================== -->
+<!-- FOOTER -->
+<!-- ========================================== -->
 
-    <script
-        src="js/status.js"
-    ></script>
+<footer class="footer">
 
+    <p>
+        Manaton Games © 2026
+    </p>
+
+    <p>
+        System Status
+    </p>
+
+</footer>
+
+
+
+<!-- ========================================== -->
+<!-- JAVASCRIPT -->
+<!-- ========================================== -->
+
+<script
+    src="js/status.js"
+></script>
 
 </body>
 
