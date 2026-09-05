@@ -3,31 +3,60 @@
 // ADMIN PANEL
 // ==========================================
 
-document.addEventListener("DOMContentLoaded", () => {
-    checkSession();
-});
-
 
 // ==========================================
 // ELEMENTS
 // ==========================================
 
-const loginPage = document.querySelector("#login-page");
-const adminPage = document.querySelector("#admin-page");
+const loginPage =
+    document.querySelector("#login-page");
 
-const loginForm = document.querySelector("#login-form");
-const passwordInput = document.querySelector("#password");
-const loginButton = document.querySelector("#login-button");
-const loginError = document.querySelector("#login-error");
+const adminPage =
+    document.querySelector("#admin-page");
 
-const logoutButton = document.querySelector("#logout-button");
+const loginForm =
+    document.querySelector("#login-form");
 
-const privateStatus = document.querySelector("#private-status");
-const privateDescription = document.querySelector("#private-description");
-const privateToggle = document.querySelector("#private-toggle");
+const passwordInput =
+    document.querySelector("#password");
 
-const servicesContainer = document.querySelector("#services-container");
-const incidentsContainer = document.querySelector("#incidents-container");
+const loginButton =
+    document.querySelector("#login-button");
+
+const loginError =
+    document.querySelector("#login-error");
+
+const logoutButton =
+    document.querySelector("#logout-button");
+
+const privateStatus =
+    document.querySelector("#private-status");
+
+const privateDescription =
+    document.querySelector("#private-description");
+
+const privateToggle =
+    document.querySelector("#private-toggle");
+
+const servicesContainer =
+    document.querySelector("#services-container");
+
+const incidentsContainer =
+    document.querySelector("#incidents-container");
+
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        checkSession();
+
+    }
+);
 
 
 // ==========================================
@@ -47,7 +76,8 @@ async function checkSession() {
             }
         );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (
             response.ok &&
@@ -67,7 +97,10 @@ async function checkSession() {
 
     } catch (error) {
 
-        console.error("[ADMIN SESSION ERROR]", error);
+        console.error(
+            "[ADMIN SESSION ERROR]",
+            error
+        );
 
         showLogin();
 
@@ -82,85 +115,121 @@ async function checkSession() {
 
 if (loginForm) {
 
-    loginForm.addEventListener("submit", async (event) => {
+    loginForm.addEventListener(
+        "submit",
+        async (event) => {
 
-        event.preventDefault();
+            event.preventDefault();
 
-        const password = passwordInput.value.trim();
 
-        if (!password) {
+            const password =
+                passwordInput.value.trim();
 
-            showLoginError(
-                "Please enter your password."
-            );
 
-            return;
-
-        }
-
-        loginButton.disabled = true;
-        loginButton.textContent = "Signing in...";
-
-        hideLoginError();
-
-        try {
-
-            const response = await fetch(
-                "../api/admin/login",
-                {
-                    method: "POST",
-                    credentials: "include",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        password
-                    })
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
+            if (!password) {
 
                 showLoginError(
-                    data.error || "Invalid credentials."
+                    "Please enter your password."
                 );
 
-                passwordInput.value = "";
                 passwordInput.focus();
 
                 return;
 
             }
 
-            passwordInput.value = "";
 
-            showAdminPanel();
+            loginButton.disabled = true;
 
-            await loadDashboard();
+            loginButton.textContent =
+                "Signing in...";
 
-        } catch (error) {
 
-            console.error(
-                "[ADMIN LOGIN ERROR]",
-                error
-            );
+            hideLoginError();
 
-            showLoginError(
-                "Unable to connect to the server."
-            );
 
-        } finally {
+            try {
 
-            loginButton.disabled = false;
-            loginButton.textContent = "Sign In";
+                const response = await fetch(
+                    "../api/admin/login",
+                    {
+                        method: "POST",
+
+                        credentials:
+                            "include",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            password
+                        })
+                    }
+                );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.error ||
+                        "Invalid credentials."
+                    );
+
+                }
+
+
+                // Limpiar contraseña
+                passwordInput.value = "";
+
+
+                // Ocultar login
+                // Mostrar únicamente dashboard
+                showAdminPanel();
+
+
+                // Cargar información
+                await loadDashboard();
+
+
+            } catch (error) {
+
+                console.error(
+                    "[ADMIN LOGIN ERROR]",
+                    error
+                );
+
+
+                showLoginError(
+                    error.message ||
+                    "Unable to connect to the server."
+                );
+
+
+                passwordInput.value = "";
+
+                passwordInput.focus();
+
+
+            } finally {
+
+                loginButton.disabled = false;
+
+                loginButton.textContent =
+                    "Sign In";
+
+            }
 
         }
-
-    });
+    );
 
 }
 
@@ -177,32 +246,47 @@ async function loadDashboard() {
             "../api/admin/dashboard",
             {
                 method: "GET",
-                credentials: "include",
-                cache: "no-store"
+
+                credentials:
+                    "include",
+
+                cache:
+                    "no-store"
             }
         );
 
-        const data = await response.json();
 
-        if (!response.ok || !data.success) {
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
             throw new Error(
-                data.error || "Unable to load dashboard."
+                data.error ||
+                "Unable to load dashboard."
             );
 
         }
+
 
         updatePrivateMode(
             data.privateMode === true
         );
 
+
         updateServices(
             data.services || []
         );
 
+
         updateIncidents(
             data.incidents || []
         );
+
 
     } catch (error) {
 
@@ -211,20 +295,26 @@ async function loadDashboard() {
             error
         );
 
+
         if (servicesContainer) {
+
             servicesContainer.innerHTML = `
                 <div class="error-message">
                     Unable to load dashboard data.
                 </div>
             `;
+
         }
 
+
         if (incidentsContainer) {
+
             incidentsContainer.innerHTML = `
                 <div class="error-message">
                     Unable to load dashboard data.
                 </div>
             `;
+
         }
 
     }
@@ -238,35 +328,61 @@ async function loadDashboard() {
 
 function updatePrivateMode(enabled) {
 
-    if (!privateStatus || !privateDescription || !privateToggle) {
+    if (
+        !privateStatus ||
+        !privateDescription ||
+        !privateToggle
+    ) {
+
         return;
+
     }
+
 
     if (enabled) {
 
-        privateStatus.textContent = "PRIVATE";
-        privateStatus.classList.add("private-active");
+        privateStatus.textContent =
+            "PRIVATE";
+
+
+        privateStatus.classList.add(
+            "private-active"
+        );
+
 
         privateDescription.textContent =
             "The public Status Page is currently hidden.";
 
+
         privateToggle.textContent =
             "Disable Private Mode";
 
-        privateToggle.dataset.enabled = "true";
+
+        privateToggle.dataset.enabled =
+            "true";
+
 
     } else {
 
-        privateStatus.textContent = "PUBLIC";
-        privateStatus.classList.remove("private-active");
+        privateStatus.textContent =
+            "PUBLIC";
+
+
+        privateStatus.classList.remove(
+            "private-active"
+        );
+
 
         privateDescription.textContent =
             "The public Status Page is currently accessible.";
 
+
         privateToggle.textContent =
             "Enable Private Mode";
 
-        privateToggle.dataset.enabled = "false";
+
+        privateToggle.dataset.enabled =
+            "false";
 
     }
 
@@ -279,7 +395,10 @@ function updatePrivateMode(enabled) {
 
 function updateServices(services) {
 
-    if (!servicesContainer) return;
+    if (!servicesContainer) {
+        return;
+    }
+
 
     if (
         !Array.isArray(services) ||
@@ -296,42 +415,57 @@ function updateServices(services) {
 
     }
 
-    servicesContainer.innerHTML = services.map(
-        service => {
 
-            const status = service.status || "unknown";
+    servicesContainer.innerHTML =
+        services.map(
+            service => {
 
-            const statusLabel =
-                getServiceStatusLabel(status);
+                const status =
+                    service.status ||
+                    "unknown";
 
-            return `
-                <div class="admin-service">
 
-                    <div>
+                const statusLabel =
+                    getServiceStatusLabel(
+                        status
+                    );
 
-                        <strong>
-                            ${escapeHTML(service.name)}
-                        </strong>
 
-                        <span>
-                            ${escapeHTML(
-                                service.description || ""
-                            )}
-                        </span>
+                return `
+                    <div class="admin-service">
+
+                        <div>
+
+                            <strong>
+                                ${escapeHTML(
+                                    service.name
+                                )}
+                            </strong>
+
+                            <span>
+                                ${escapeHTML(
+                                    service.description ||
+                                    ""
+                                )}
+                            </span>
+
+                        </div>
+
+                        <div
+                            class="
+                                service-status-badge
+                                service-status-${escapeHTML(status)}
+                            "
+                        >
+                            ${statusLabel}
+                        </div>
 
                     </div>
+                `;
 
-                    <div
-                        class="service-status-badge service-status-${escapeHTML(status)}"
-                    >
-                        ${statusLabel}
-                    </div>
-
-                </div>
-            `;
-
-        }
-    ).join("");
+            }
+        )
+        .join("");
 
 }
 
@@ -376,7 +510,10 @@ function getServiceStatusLabel(status) {
 
 function updateIncidents(incidents) {
 
-    if (!incidentsContainer) return;
+    if (!incidentsContainer) {
+        return;
+    }
+
 
     if (
         !Array.isArray(incidents) ||
@@ -393,51 +530,60 @@ function updateIncidents(incidents) {
 
     }
 
-    incidentsContainer.innerHTML = incidents.map(
-        incident => {
 
-            const status =
-                incident.status || "investigating";
+    incidentsContainer.innerHTML =
+        incidents.map(
+            incident => {
 
-            const impact =
-                incident.impact || "minor";
+                const status =
+                    incident.status ||
+                    "investigating";
 
-            return `
-                <div class="admin-incident">
 
-                    <div class="admin-incident-main">
+                const impact =
+                    incident.impact ||
+                    "minor";
 
-                        <strong>
-                            ${escapeHTML(
-                                incident.title || "Incident"
-                            )}
-                        </strong>
 
-                        <span>
-                            ${escapeHTML(
-                                incident.description || ""
-                            )}
-                        </span>
+                return `
+                    <div class="admin-incident">
+
+                        <div class="admin-incident-main">
+
+                            <strong>
+                                ${escapeHTML(
+                                    incident.title ||
+                                    "Incident"
+                                )}
+                            </strong>
+
+                            <span>
+                                ${escapeHTML(
+                                    incident.description ||
+                                    ""
+                                )}
+                            </span>
+
+                        </div>
+
+                        <div class="admin-incident-meta">
+
+                            <span>
+                                ${escapeHTML(status)}
+                            </span>
+
+                            <span>
+                                ${escapeHTML(impact)}
+                            </span>
+
+                        </div>
 
                     </div>
+                `;
 
-                    <div class="admin-incident-meta">
-
-                        <span>
-                            ${escapeHTML(status)}
-                        </span>
-
-                        <span>
-                            ${escapeHTML(impact)}
-                        </span>
-
-                    </div>
-
-                </div>
-            `;
-
-        }
-    ).join("");
+            }
+        )
+        .join("");
 
 }
 
@@ -453,44 +599,65 @@ if (privateToggle) {
         async () => {
 
             const currentlyEnabled =
-                privateToggle.dataset.enabled === "true";
+                privateToggle.dataset.enabled ===
+                "true";
 
-            const newValue = !currentlyEnabled;
 
-            const confirmation = confirm(
-                newValue
-                    ? "Enable Private Mode? The public Status Page will be hidden."
-                    : "Disable Private Mode? The public Status Page will become accessible again."
-            );
+            const newValue =
+                !currentlyEnabled;
+
+
+            const confirmation =
+                confirm(
+                    newValue
+                        ? "Enable Private Mode? The public Status Page will be hidden."
+                        : "Disable Private Mode? The public Status Page will become accessible again."
+                );
+
 
             if (!confirmation) {
                 return;
             }
 
+
             privateToggle.disabled = true;
-            privateToggle.textContent = "Updating...";
+
+            privateToggle.textContent =
+                "Updating...";
+
 
             try {
 
                 const response = await fetch(
                     "../api/admin/private-mode",
                     {
-                        method: "POST",
-                        credentials: "include",
+                        method:
+                            "POST",
+
+                        credentials:
+                            "include",
 
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type":
+                                "application/json"
                         },
 
                         body: JSON.stringify({
-                            enabled: newValue
+                            enabled:
+                                newValue
                         })
                     }
                 );
 
-                const data = await response.json();
 
-                if (!response.ok || !data.success) {
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
 
                     throw new Error(
                         data.error ||
@@ -499,9 +666,11 @@ if (privateToggle) {
 
                 }
 
+
                 updatePrivateMode(
                     data.privateMode === true
                 );
+
 
             } catch (error) {
 
@@ -510,16 +679,20 @@ if (privateToggle) {
                     error
                 );
 
+
                 alert(
                     error.message ||
                     "Unable to update Private Mode."
                 );
 
+
                 await loadDashboard();
+
 
             } finally {
 
-                privateToggle.disabled = false;
+                privateToggle.disabled =
+                    false;
 
             }
 
@@ -539,18 +712,48 @@ if (logoutButton) {
         "click",
         async () => {
 
-            logoutButton.disabled = true;
-            logoutButton.textContent = "Logging out...";
+            logoutButton.disabled =
+                true;
+
+            logoutButton.textContent =
+                "Logging out...";
+
 
             try {
 
-                await fetch(
+                const response = await fetch(
                     "../api/admin/logout",
                     {
-                        method: "POST",
-                        credentials: "include"
+                        method:
+                            "POST",
+
+                        credentials:
+                            "include"
                     }
                 );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.error ||
+                        "Unable to log out."
+                    );
+
+                }
+
+
+                // Ocultar completamente
+                // el dashboard y volver al login
+                showLogin();
+
 
             } catch (error) {
 
@@ -559,9 +762,21 @@ if (logoutButton) {
                     error
                 );
 
-            }
 
-            window.location.reload();
+                alert(
+                    error.message ||
+                    "Unable to log out."
+                );
+
+            } finally {
+
+                logoutButton.disabled =
+                    false;
+
+                logoutButton.textContent =
+                    "Logout";
+
+            }
 
         }
     );
@@ -574,16 +789,48 @@ if (logoutButton) {
 // ==========================================
 
 function showLogin() {
-    loginPage.hidden = false;
-    adminPage.hidden = true;
 
-    // Limpiar completamente el formulario
-    passwordInput.value = "";
-    loginError.textContent = "";
-    loginError.hidden = true;
+    if (loginPage) {
 
-    // Enfocar automáticamente el campo de contraseña
-    passwordInput.focus();
+        loginPage.hidden = false;
+
+    }
+
+
+    if (adminPage) {
+
+        adminPage.hidden = true;
+
+    }
+
+
+    // Limpiar formulario
+
+    if (passwordInput) {
+
+        passwordInput.value = "";
+
+    }
+
+
+    hideLoginError();
+
+
+    // Enfocar contraseña
+
+    setTimeout(
+        () => {
+
+            if (passwordInput) {
+
+                passwordInput.focus();
+
+            }
+
+        },
+        50
+    );
+
 }
 
 
@@ -592,8 +839,23 @@ function showLogin() {
 // ==========================================
 
 function showAdminPanel() {
-    loginPage.hidden = true;
-    adminPage.hidden = false;
+
+    if (loginPage) {
+
+        loginPage.hidden = true;
+
+    }
+
+
+    if (adminPage) {
+
+        adminPage.hidden = false;
+
+    }
+
+
+    hideLoginError();
+
 }
 
 
@@ -603,20 +865,30 @@ function showAdminPanel() {
 
 function showLoginError(message) {
 
-    if (!loginError) return;
+    if (!loginError) {
+        return;
+    }
 
-    loginError.textContent = message;
-    loginError.hidden = false;
+    loginError.textContent =
+        message;
+
+    loginError.hidden =
+        false;
 
 }
 
 
 function hideLoginError() {
 
-    if (!loginError) return;
+    if (!loginError) {
+        return;
+    }
 
-    loginError.textContent = "";
-    loginError.hidden = true;
+    loginError.textContent =
+        "";
+
+    loginError.hidden =
+        true;
 
 }
 
@@ -631,14 +903,32 @@ function escapeHTML(value) {
         value === null ||
         value === undefined
     ) {
+
         return "";
+
     }
 
+
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
