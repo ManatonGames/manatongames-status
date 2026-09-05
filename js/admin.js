@@ -46,6 +46,41 @@ const incidentsContainer =
 
 
 // ==========================================
+// INCIDENT ELEMENTS
+// ==========================================
+
+const createIncidentButton =
+    document.querySelector("#create-incident-button");
+
+const incidentFormContainer =
+    document.querySelector("#incident-form-container");
+
+const incidentForm =
+    document.querySelector("#incident-form");
+
+const cancelIncidentButton =
+    document.querySelector("#cancel-incident-button");
+
+const saveIncidentButton =
+    document.querySelector("#save-incident-button");
+
+const incidentTitle =
+    document.querySelector("#incident-title");
+
+const incidentDescription =
+    document.querySelector("#incident-description");
+
+const incidentStatus =
+    document.querySelector("#incident-status");
+
+const incidentImpact =
+    document.querySelector("#incident-impact");
+
+const incidentFormError =
+    document.querySelector("#incident-form-error");
+
+
+// ==========================================
 // INITIALIZATION
 // ==========================================
 
@@ -192,7 +227,7 @@ if (loginForm) {
 
 
                 // Ocultar login
-                // Mostrar únicamente dashboard
+                // Mostrar dashboard
                 showAdminPanel();
 
 
@@ -589,6 +624,290 @@ function updateIncidents(incidents) {
 
 
 // ==========================================
+// CREATE INCIDENT BUTTON
+// ==========================================
+
+if (createIncidentButton) {
+
+    createIncidentButton.addEventListener(
+        "click",
+        () => {
+
+            if (!incidentFormContainer) {
+                return;
+            }
+
+
+            incidentFormContainer.hidden =
+                false;
+
+
+            hideIncidentFormError();
+
+
+            if (incidentTitle) {
+                incidentTitle.focus();
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// CANCEL INCIDENT
+// ==========================================
+
+if (cancelIncidentButton) {
+
+    cancelIncidentButton.addEventListener(
+        "click",
+        () => {
+
+            closeIncidentForm();
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// CLOSE INCIDENT FORM
+// ==========================================
+
+function closeIncidentForm() {
+
+    if (incidentFormContainer) {
+
+        incidentFormContainer.hidden =
+            true;
+
+    }
+
+
+    if (incidentForm) {
+
+        incidentForm.reset();
+
+    }
+
+
+    hideIncidentFormError();
+
+}
+
+
+// ==========================================
+// INCIDENT FORM SUBMIT
+// ==========================================
+
+if (incidentForm) {
+
+    incidentForm.addEventListener(
+        "submit",
+        async (event) => {
+
+            event.preventDefault();
+
+
+            const title =
+                incidentTitle
+                    ? incidentTitle.value.trim()
+                    : "";
+
+
+            const description =
+                incidentDescription
+                    ? incidentDescription.value.trim()
+                    : "";
+
+
+            const status =
+                incidentStatus
+                    ? incidentStatus.value
+                    : "investigating";
+
+
+            const impact =
+                incidentImpact
+                    ? incidentImpact.value
+                    : "minor";
+
+
+            // ==========================================
+            // VALIDATION
+            // ==========================================
+
+            if (!title) {
+
+                showIncidentFormError(
+                    "Please enter an incident title."
+                );
+
+
+                if (incidentTitle) {
+                    incidentTitle.focus();
+                }
+
+
+                return;
+
+            }
+
+
+            // ==========================================
+            // LOADING
+            // ==========================================
+
+            if (saveIncidentButton) {
+
+                saveIncidentButton.disabled =
+                    true;
+
+
+                saveIncidentButton.textContent =
+                    "Creating...";
+
+            }
+
+
+            hideIncidentFormError();
+
+
+            // ==========================================
+            // CREATE INCIDENT
+            // ==========================================
+
+            try {
+
+                const response =
+                    await fetch(
+                        "../api/admin/incidents",
+                        {
+                            method:
+                                "POST",
+
+                            credentials:
+                                "include",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                title,
+                                description,
+                                status,
+                                impact
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.error ||
+                        "Unable to create incident."
+                    );
+
+                }
+
+
+                // ==========================================
+                // SUCCESS
+                // ==========================================
+
+                closeIncidentForm();
+
+
+                await loadDashboard();
+
+
+            } catch (error) {
+
+                console.error(
+                    "[CREATE INCIDENT ERROR]",
+                    error
+                );
+
+
+                showIncidentFormError(
+                    error.message ||
+                    "Unable to create incident."
+                );
+
+
+            } finally {
+
+                if (saveIncidentButton) {
+
+                    saveIncidentButton.disabled =
+                        false;
+
+
+                    saveIncidentButton.textContent =
+                        "Create Incident";
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// INCIDENT FORM ERROR
+// ==========================================
+
+function showIncidentFormError(message) {
+
+    if (!incidentFormError) {
+        return;
+    }
+
+
+    incidentFormError.textContent =
+        message;
+
+
+    incidentFormError.hidden =
+        false;
+
+}
+
+
+function hideIncidentFormError() {
+
+    if (!incidentFormError) {
+        return;
+    }
+
+
+    incidentFormError.textContent =
+        "";
+
+
+    incidentFormError.hidden =
+        true;
+
+}
+
+
+// ==========================================
 // PRIVATE MODE BUTTON
 // ==========================================
 
@@ -715,6 +1034,7 @@ if (logoutButton) {
             logoutButton.disabled =
                 true;
 
+
             logoutButton.textContent =
                 "Logging out...";
 
@@ -750,8 +1070,7 @@ if (logoutButton) {
                 }
 
 
-                // Ocultar completamente
-                // el dashboard y volver al login
+                // Volver al login
                 showLogin();
 
 
@@ -768,10 +1087,12 @@ if (logoutButton) {
                     "Unable to log out."
                 );
 
+
             } finally {
 
                 logoutButton.disabled =
                     false;
+
 
                 logoutButton.textContent =
                     "Logout";
@@ -792,28 +1113,35 @@ function showLogin() {
 
     if (loginPage) {
 
-        loginPage.hidden = false;
+        loginPage.hidden =
+            false;
 
     }
 
 
     if (adminPage) {
 
-        adminPage.hidden = true;
+        adminPage.hidden =
+            true;
 
     }
 
 
-    // Limpiar formulario
+    // Limpiar contraseña
 
     if (passwordInput) {
 
-        passwordInput.value = "";
+        passwordInput.value =
+            "";
 
     }
 
 
     hideLoginError();
+
+
+    // Cerrar formulario de incidente
+    closeIncidentForm();
 
 
     // Enfocar contraseña
@@ -842,14 +1170,16 @@ function showAdminPanel() {
 
     if (loginPage) {
 
-        loginPage.hidden = true;
+        loginPage.hidden =
+            true;
 
     }
 
 
     if (adminPage) {
 
-        adminPage.hidden = false;
+        adminPage.hidden =
+            false;
 
     }
 
@@ -869,8 +1199,10 @@ function showLoginError(message) {
         return;
     }
 
+
     loginError.textContent =
         message;
+
 
     loginError.hidden =
         false;
@@ -884,8 +1216,10 @@ function hideLoginError() {
         return;
     }
 
+
     loginError.textContent =
         "";
+
 
     loginError.hidden =
         true;
