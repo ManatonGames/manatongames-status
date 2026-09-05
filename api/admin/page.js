@@ -414,7 +414,6 @@ function getAdminHTML(authenticated) {
 
         <section class="admin-card">
 
-
             <div class="card-header">
 
                 <div>
@@ -423,12 +422,145 @@ function getAdminHTML(authenticated) {
                         Incidents
                     </h2>
 
-
                     <p>
                         Manage active incidents and history.
                     </p>
 
                 </div>
+
+                <button
+                    id="create-incident-button"
+                    class="primary-button"
+                >
+                    + Create Incident
+                </button>
+
+            </div>
+
+
+            <div
+                id="incident-form-container"
+                class="incident-form-container"
+                hidden
+            >
+
+                <form id="incident-form">
+
+                    <div class="form-group">
+
+                        <label for="incident-title">
+                            Title
+                        </label>
+
+                        <input
+                            type="text"
+                            id="incident-title"
+                            placeholder="Example: Website connectivity issues"
+                            maxlength="150"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="incident-description">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="incident-description"
+                            placeholder="Describe what is happening..."
+                            rows="4"
+                            maxlength="2000"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="incident-status">
+                                Status
+                            </label>
+
+                            <select id="incident-status">
+
+                                <option value="investigating">
+                                    Investigating
+                                </option>
+
+                                <option value="identified">
+                                    Identified
+                                </option>
+
+                                <option value="monitoring">
+                                    Monitoring
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="incident-impact">
+                                Impact
+                            </label>
+
+                            <select id="incident-impact">
+
+                                <option value="minor">
+                                    Minor
+                                </option>
+
+                                <option value="major">
+                                    Major
+                                </option>
+
+                                <option value="critical">
+                                    Critical
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            id="save-incident-button"
+                            class="primary-button"
+                        >
+                            Create Incident
+                        </button>
+
+                        <button
+                            type="button"
+                            id="cancel-incident-button"
+                            class="secondary-button"
+                        >
+                            Cancel
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="incident-form-error"
+                        class="error-message"
+                        hidden
+                    ></div>
+
+                </form>
 
             </div>
 
@@ -436,7 +568,6 @@ function getAdminHTML(authenticated) {
             <div id="incidents-container">
                 Loading...
             </div>
-
 
         </section>
 
