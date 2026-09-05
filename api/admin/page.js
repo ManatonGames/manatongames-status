@@ -422,6 +422,10 @@ function getAdminHTML(authenticated) {
                         Incidents
                     </h2>
 
+                    <span style="font-size: 11px; opacity: 0.5;">
+    ADMIN PAGE TEST v2
+</span>
+
                     <p>
                         Manage active incidents and history.
                     </p>
