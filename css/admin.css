@@ -399,3 +399,11 @@ body {
 .logout-button:active {
     transform: translateY(0);
 }
+
+/* ==========================================
+   HIDDEN ELEMENTS
+========================================== */
+
+[hidden] {
+    display: none !important;
+}
