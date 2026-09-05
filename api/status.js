@@ -29,14 +29,61 @@ export default async function handler(req, res) {
         "noindex, nofollow"
     );
 
+
+    // ==========================================
+    // METHOD
+    // ==========================================
+
     if (req.method !== "GET") {
+
         return res.status(405).json({
             success: false,
             error: "Method not allowed"
         });
+
     }
 
+
     try {
+
+        // ==========================================
+        // SYSTEM SETTINGS
+        // ==========================================
+
+        const settings = await sql`
+            SELECT
+                key,
+                value
+            FROM system_settings
+            WHERE key = 'private_mode'
+            LIMIT 1
+        `;
+
+
+        const privateMode =
+            settings.length > 0 &&
+            settings[0].value === "true";
+
+
+        // ==========================================
+        // PRIVATE MODE
+        // ==========================================
+
+        if (privateMode) {
+
+            return res.status(200).json({
+
+                success: true,
+
+                privateMode: true,
+
+                updatedAt:
+                    new Date().toISOString()
+
+            });
+
+        }
+
 
         // ==========================================
         // SERVICES
@@ -116,38 +163,46 @@ export default async function handler(req, res) {
         // ATTACH UPDATES TO INCIDENTS
         // ==========================================
 
-        const incidentsWithUpdates = incidents.map(
-            (incident) => {
+        const incidentsWithUpdates =
+            incidents.map(
+                (incident) => {
 
-                const updates = incidentUpdates.filter(
-                    (update) =>
-                        String(update.incident_id) ===
-                        String(incident.id)
-                );
+                    const updates =
+                        incidentUpdates.filter(
+                            (update) =>
+                                String(
+                                    update.incident_id
+                                ) ===
+                                String(
+                                    incident.id
+                                )
+                        );
 
-                return {
-                    ...incident,
-                    updates
-                };
-            }
-        );
+                    return {
+                        ...incident,
+                        updates
+                    };
 
-// ==========================================
-// MONITOR CHECKS
-// ==========================================
+                }
+            );
 
-const monitorChecks = await sql`
-    SELECT
-        id,
-        service_id,
-        experience_id,
-        status,
-        response_time_ms,
-        checked_at
-    FROM monitor_checks
-    WHERE checked_at >= NOW() - INTERVAL '24 hours'
-    ORDER BY checked_at DESC
-`;
+
+        // ==========================================
+        // MONITOR CHECKS
+        // ==========================================
+
+        const monitorChecks = await sql`
+            SELECT
+                id,
+                service_id,
+                experience_id,
+                status,
+                response_time_ms,
+                checked_at
+            FROM monitor_checks
+            WHERE checked_at >= NOW() - INTERVAL '24 hours'
+            ORDER BY checked_at DESC
+        `;
 
 
         // ==========================================
@@ -155,13 +210,25 @@ const monitorChecks = await sql`
         // ==========================================
 
         return res.status(200).json({
-    success: true,
-    updatedAt: new Date().toISOString(),
-    services,
-    experiences,
-    incidents: incidentsWithUpdates,
-    monitorChecks
-});
+
+            success: true,
+
+            privateMode: false,
+
+            updatedAt:
+                new Date().toISOString(),
+
+            services,
+
+            experiences,
+
+            incidents:
+                incidentsWithUpdates,
+
+            monitorChecks
+
+        });
+
 
     } catch (error) {
 
@@ -171,8 +238,14 @@ const monitorChecks = await sql`
         );
 
         return res.status(500).json({
+
             success: false,
-            error: "Unable to retrieve status information."
+
+            error:
+                "Unable to retrieve status information."
+
         });
+
     }
+
 }
