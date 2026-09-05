@@ -1991,3 +1991,70 @@ body {
     }
 
 }
+
+/* ==========================================
+   PRIVATE MODE
+   ========================================== */
+
+.private-mode-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 24px;
+
+    box-sizing: border-box;
+
+}
+
+
+.private-mode-card {
+
+    width: 100%;
+
+    max-width: 520px;
+
+    text-align: center;
+
+    padding: 48px 32px;
+
+    border-radius: 16px;
+
+}
+
+
+.private-mode-icon {
+
+    font-size: 48px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.private-mode-card h1 {
+
+    margin: 0 0 16px;
+
+}
+
+
+.private-mode-card p {
+
+    margin: 8px 0;
+
+    line-height: 1.6;
+
+}
+
+
+.private-mode-subtitle {
+
+    opacity: 0.7;
+
+}
