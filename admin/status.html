@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin — Manaton Games Status</title>
+
+    <meta
+        name="robots"
+        content="noindex, nofollow"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/admin.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- ==========================================
+         LOGIN
+    =========================================== -->
+
+    <main id="login-page" class="page">
+
+        <div class="login-card">
+
+            <div class="login-logo">
+                MG
+            </div>
+
+            <h1>
+                Admin Panel
+            </h1>
+
+            <p class="login-subtitle">
+                Manaton Games Status
+            </p>
+
+            <form id="login-form">
+
+                <label for="password">
+                    Administrator Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    id="login-button"
+                >
+                    Sign In
+                </button>
+
+                <div
+                    id="login-error"
+                    class="error-message"
+                    hidden
+                ></div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <!-- ==========================================
+         ADMIN PANEL
+    =========================================== -->
+
+    <main
+        id="admin-page"
+        class="admin-page"
+        hidden
+    >
+
+        <header class="admin-header">
+
+            <div>
+
+                <div class="admin-brand">
+                    <div class="admin-logo">
+                        MG
+                    </div>
+
+                    <div>
+                        <strong>
+                            Manaton Games
+                        </strong>
+
+                        <span>
+                            Status Admin
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <button
+                id="logout-button"
+                class="logout-button"
+            >
+                Logout
+            </button>
+
+        </header>
+
+
+        <section class="admin-container">
+
+            <div class="page-title">
+
+                <div>
+                    <h1>
+                        Status Dashboard
+                    </h1>
+
+                    <p>
+                        Manage the Manaton Games Status Page.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- PRIVATE MODE -->
+
+            <section class="admin-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Private Mode
+                        </h2>
+
+                        <p>
+                            Temporarily hide the public Status Page.
+                        </p>
+
+                    </div>
+
+                    <div
+                        id="private-status"
+                        class="mode-badge"
+                    >
+                        Checking...
+                    </div>
+
+                </div>
+
+
+                <div class="private-mode-control">
+
+                    <div>
+
+                        <strong>
+                            Public Status Page
+                        </strong>
+
+                        <p id="private-description">
+                            Checking current status...
+                        </p>
+
+                    </div>
+
+                    <button
+                        id="private-toggle"
+                        class="toggle-button"
+                    >
+                        Loading...
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- SERVICES -->
+
+            <section class="admin-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Services
+                        </h2>
+
+                        <p>
+                            Current status of Manaton Games services.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div id="services-container">
+                    Loading...
+                </div>
+
+            </section>
+
+
+            <!-- INCIDENTS -->
+
+            <section class="admin-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Incidents
+                        </h2>
+
+                        <p>
+                            Manage active incidents and history.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div id="incidents-container">
+                    Loading...
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <script src="../js/admin.js"></script>
+
+</body>
+
+</html>
