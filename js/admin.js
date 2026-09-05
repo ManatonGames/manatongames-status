@@ -574,15 +574,16 @@ if (logoutButton) {
 // ==========================================
 
 function showLogin() {
+    loginPage.hidden = false;
+    adminPage.hidden = true;
 
-    if (loginPage) {
-        loginPage.hidden = false;
-    }
+    // Limpiar completamente el formulario
+    passwordInput.value = "";
+    loginError.textContent = "";
+    loginError.hidden = true;
 
-    if (adminPage) {
-        adminPage.hidden = true;
-    }
-
+    // Enfocar automáticamente el campo de contraseña
+    passwordInput.focus();
 }
 
 
@@ -591,15 +592,8 @@ function showLogin() {
 // ==========================================
 
 function showAdminPanel() {
-
-    if (loginPage) {
-        loginPage.hidden = true;
-    }
-
-    if (adminPage) {
-        adminPage.hidden = false;
-    }
-
+    loginPage.hidden = true;
+    adminPage.hidden = false;
 }
 
 
