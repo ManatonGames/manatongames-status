@@ -57,6 +57,42 @@ document.addEventListener(
     }
 );
 
+// ==========================================
+// PRIVATE MODE
+// ==========================================
+
+function showPrivateMode() {
+
+    document.body.innerHTML = `
+
+        <div class="private-mode-page">
+
+            <div class="private-mode-card">
+
+                <div class="private-mode-icon">
+                    🔒
+                </div>
+
+                <h1>
+                    Status Page is Private
+                </h1>
+
+                <p>
+                    The Manaton Games Status Page is
+                    temporarily unavailable to the public.
+                </p>
+
+                <p class="private-mode-subtitle">
+                    Please check back later.
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
 
 // ==========================================
 // LOAD STATUS
@@ -84,14 +120,27 @@ async function loadStatus() {
 
         const data = await response.json();
 
-        if (!data.success) {
+if (!data.success) {
 
-            throw new Error(
-                data.error ||
-                "Unable to load status."
-            );
+    throw new Error(
+        data.error ||
+        "Unable to load status."
+    );
 
-        }
+}
+
+
+// ==========================================
+// PRIVATE MODE
+// ==========================================
+
+if (data.privateMode === true) {
+
+    showPrivateMode();
+
+    return;
+
+}
 
 
         // ==========================================
