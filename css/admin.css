@@ -407,3 +407,370 @@ body {
 [hidden] {
     display: none !important;
 }
+
+/* ==========================================
+   INCIDENTS
+========================================== */
+
+.incidents-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+
+/* ==========================================
+   CREATE INCIDENT BUTTON
+========================================== */
+
+#create-incident-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: 0;
+    border-radius: 10px;
+
+    padding: 10px 16px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#create-incident-button:hover {
+    background: #1d4ed8;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 18px rgba(37, 99, 235, 0.25);
+}
+
+#create-incident-button:active {
+    transform: translateY(0);
+
+    box-shadow: none;
+}
+
+
+/* ==========================================
+   INCIDENT FORM CONTAINER
+========================================== */
+
+.incident-form-container {
+    margin-top: 20px;
+    margin-bottom: 24px;
+
+    padding: 24px;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.035);
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.incident-form-container[hidden] {
+    display: none !important;
+}
+
+
+/* ==========================================
+   FORM GROUP
+========================================== */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: rgba(255, 255, 255, 0.9);
+}
+
+
+/* ==========================================
+   INPUTS
+========================================== */
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    border-radius: 9px;
+
+    background: rgba(0, 0, 0, 0.22);
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+
+    background: rgba(0, 0, 0, 0.28);
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+
+/* ==========================================
+   TEXTAREA
+========================================== */
+
+.form-group textarea {
+    min-height: 110px;
+
+    resize: vertical;
+
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   SELECT
+========================================== */
+
+.form-group select {
+    cursor: pointer;
+}
+
+.form-group select option {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+
+/* ==========================================
+   TWO COLUMN ROW
+========================================== */
+
+.form-row {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+
+/* ==========================================
+   FORM ACTIONS
+========================================== */
+
+.form-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 6px;
+}
+
+
+/* ==========================================
+   FORM BUTTONS
+========================================== */
+
+.primary-button,
+.secondary-button {
+    border: 0;
+
+    padding: 10px 17px;
+
+    border-radius: 9px;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+/* CREATE */
+
+.primary-button {
+    background: #2563eb;
+
+    color: #ffffff;
+}
+
+.primary-button:hover {
+    background: #1d4ed8;
+
+    transform: translateY(-1px);
+}
+
+.primary-button:active {
+    transform: translateY(0);
+}
+
+
+/* CANCEL */
+
+.secondary-button {
+    background: rgba(255, 255, 255, 0.07);
+
+    color: #ffffff;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.secondary-button:hover {
+    background: rgba(255, 255, 255, 0.12);
+
+    transform: translateY(-1px);
+}
+
+.secondary-button:active {
+    transform: translateY(0);
+}
+
+
+/* DISABLED */
+
+.primary-button:disabled,
+.secondary-button:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+
+/* ==========================================
+   FORM ERROR
+========================================== */
+
+#incident-form-error {
+    margin-top: 14px;
+
+    padding: 11px 13px;
+
+    border: 1px solid rgba(239, 68, 68, 0.25);
+
+    border-radius: 9px;
+
+    background: rgba(239, 68, 68, 0.08);
+
+    color: #fca5a5;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+#incident-form-error[hidden] {
+    display: none !important;
+}
+
+
+/* ==========================================
+   INCIDENT LIST
+========================================== */
+
+#incidents-container {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 700px) {
+
+    .card-header {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    #create-incident-button {
+        width: 100%;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+
+        gap: 0;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .primary-button,
+    .secondary-button {
+        width: 100%;
+    }
+
+}
