@@ -24,13 +24,17 @@
 
 </head>
 
+
 <body>
 
     <!-- ==========================================
          LOGIN
     =========================================== -->
 
-    <main id="login-page" class="page">
+    <main
+        id="login-page"
+        class="page"
+    >
 
         <div class="login-card">
 
@@ -45,6 +49,7 @@
             <p class="login-subtitle">
                 Manaton Games Status
             </p>
+
 
             <form id="login-form">
 
@@ -61,12 +66,14 @@
                     required
                 >
 
+
                 <button
                     type="submit"
                     id="login-button"
                 >
                     Sign In
                 </button>
+
 
                 <div
                     id="login-error"
@@ -81,6 +88,7 @@
     </main>
 
 
+
     <!-- ==========================================
          ADMIN PANEL
     =========================================== -->
@@ -91,16 +99,21 @@
         hidden
     >
 
+
+        <!-- HEADER -->
+
         <header class="admin-header">
 
             <div>
 
                 <div class="admin-brand">
+
                     <div class="admin-logo">
                         MG
                     </div>
 
                     <div>
+
                         <strong>
                             Manaton Games
                         </strong>
@@ -108,10 +121,13 @@
                         <span>
                             Status Admin
                         </span>
+
                     </div>
+
                 </div>
 
             </div>
+
 
             <button
                 id="logout-button"
@@ -123,11 +139,18 @@
         </header>
 
 
+
+        <!-- ADMIN CONTENT -->
+
         <section class="admin-container">
+
+
+            <!-- PAGE TITLE -->
 
             <div class="page-title">
 
                 <div>
+
                     <h1>
                         Status Dashboard
                     </h1>
@@ -135,12 +158,16 @@
                     <p>
                         Manage the Manaton Games Status Page.
                     </p>
+
                 </div>
 
             </div>
 
 
-            <!-- PRIVATE MODE -->
+
+            <!-- ==========================================
+                 PRIVATE MODE
+            =========================================== -->
 
             <section class="admin-card">
 
@@ -157,6 +184,7 @@
                         </p>
 
                     </div>
+
 
                     <div
                         id="private-status"
@@ -182,6 +210,7 @@
 
                     </div>
 
+
                     <button
                         id="private-toggle"
                         class="toggle-button"
@@ -194,7 +223,10 @@
             </section>
 
 
-            <!-- SERVICES -->
+
+            <!-- ==========================================
+                 SERVICES
+            =========================================== -->
 
             <section class="admin-card">
 
@@ -214,6 +246,7 @@
 
                 </div>
 
+
                 <div id="services-container">
                     Loading...
                 </div>
@@ -221,7 +254,10 @@
             </section>
 
 
-            <!-- INCIDENTS -->
+
+            <!-- ==========================================
+                 INCIDENTS
+            =========================================== -->
 
             <section class="admin-card">
 
@@ -239,7 +275,171 @@
 
                     </div>
 
+
+                    <button
+                        id="create-incident-button"
+                        class="primary-button"
+                    >
+                        + Create Incident
+                    </button>
+
                 </div>
+
+
+
+                <!-- INCIDENT FORM -->
+
+                <div
+                    id="incident-form-container"
+                    class="incident-form-container"
+                    hidden
+                >
+
+                    <form id="incident-form">
+
+
+                        <!-- TITLE -->
+
+                        <div class="form-group">
+
+                            <label for="incident-title">
+                                Title
+                            </label>
+
+                            <input
+                                type="text"
+                                id="incident-title"
+                                placeholder="Example: Website connectivity issues"
+                                maxlength="150"
+                                required
+                            >
+
+                        </div>
+
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div class="form-group">
+
+                            <label for="incident-description">
+                                Description
+                            </label>
+
+                            <textarea
+                                id="incident-description"
+                                placeholder="Describe what is happening..."
+                                rows="4"
+                                maxlength="2000"
+                            ></textarea>
+
+                        </div>
+
+
+
+                        <!-- STATUS / IMPACT -->
+
+                        <div class="form-row">
+
+
+                            <!-- STATUS -->
+
+                            <div class="form-group">
+
+                                <label for="incident-status">
+                                    Status
+                                </label>
+
+                                <select id="incident-status">
+
+                                    <option value="investigating">
+                                        Investigating
+                                    </option>
+
+                                    <option value="identified">
+                                        Identified
+                                    </option>
+
+                                    <option value="monitoring">
+                                        Monitoring
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+
+                            <!-- IMPACT -->
+
+                            <div class="form-group">
+
+                                <label for="incident-impact">
+                                    Impact
+                                </label>
+
+                                <select id="incident-impact">
+
+                                    <option value="minor">
+                                        Minor
+                                    </option>
+
+                                    <option value="major">
+                                        Major
+                                    </option>
+
+                                    <option value="critical">
+                                        Critical
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- FORM ACTIONS -->
+
+                        <div class="form-actions">
+
+                            <button
+                                type="submit"
+                                id="save-incident-button"
+                                class="primary-button"
+                            >
+                                Create Incident
+                            </button>
+
+
+                            <button
+                                type="button"
+                                id="cancel-incident-button"
+                                class="secondary-button"
+                            >
+                                Cancel
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- FORM ERROR -->
+
+                        <div
+                            id="incident-form-error"
+                            class="error-message"
+                            hidden
+                        ></div>
+
+                    </form>
+
+                </div>
+
+
+
+                <!-- INCIDENT LIST -->
 
                 <div id="incidents-container">
                     Loading...
@@ -247,10 +447,14 @@
 
             </section>
 
+
         </section>
 
     </main>
 
+
+
+    <!-- ADMIN JAVASCRIPT -->
 
     <script src="../js/admin.js"></script>
 
